@@ -4,6 +4,13 @@
 
 #include "postfix_string_builder.h"
 
+static const std::map<token_types, uint8_t> operand_precedence{
+        {neg,  5},
+        {conj, 4},
+        {disj, 3},
+        {impl, 2},
+};
+
 void postfix_string_builder::build_postfix_notation_string()
 {
     expr_postfx();

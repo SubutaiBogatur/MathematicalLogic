@@ -4,13 +4,9 @@
 
 #include "parser.h"
 
-parser::~parser()
-{
-    if (root != NULL)
-        recursive_node_deletion(root);
-}
+//public:
 
-void parser::build_AST_from_postfix()
+std::shared_ptr<parser::node> parser::build_AST_from_postfix()
 {
     //here postfix string using struct postfix_string_builder is built, then AST using postfix string is built. As a result, string is being read twice, though it can be read once.
 
@@ -45,19 +41,19 @@ void parser::build_AST_from_postfix()
             var_nodes_stack.push(new_node);
         }
     }
-    root = var_nodes_stack.top();
+    std::shared_ptr<node> ret(var_nodes_stack.top());
+    return ret;
 }
 
-//private functions:
-
-void parser::recursive_node_deletion(node *nod)
+parser::node::~node()
 {
-    if (nod->left != NULL)
-        recursive_node_deletion(nod->left);
-    if (nod->right != NULL)
-        recursive_node_deletion(nod->right);
-    delete nod;
+    if (this->left != NULL)
+        delete this->left;
+    if (this->right != NULL)
+        delete this->right;
 }
+
+//private:
 
 token_types parser::get_next_token(std::string& str, size_t& ind)
 {

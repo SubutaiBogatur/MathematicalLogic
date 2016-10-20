@@ -3,25 +3,21 @@
 //
 
 #ifndef PARSER_H
+#define PARSER_H
 
 #include "postfix_string_builder.h"
+#include <memory>
 
 struct parser
 {
+    friend struct ast;
 public:
-
-    struct node;
-
-    node *root;
-    std::string& expression;
-
-    parser(std::string& expression) : expression(expression), root(NULL)
-    { }
-
-    ~parser();
+    std::string const& expression;
 
     struct node
     {
+        ~node();
+
         node(std::string name) : type(var), left(NULL), right(NULL), var_name(name)
         { }
 
@@ -35,17 +31,17 @@ public:
         node *right;
     };
 
-    void build_AST_from_postfix(); //builds AST from postfix string
-
 private:
+    parser(std::string const& expression) : expression(expression)
+    { }
+    std::shared_ptr<node> build_AST_from_postfix(); //builds AST from postfix string
 
-    void recursive_node_deletion(node *);
     bool is_end_of_string(std::string&, size_t&);
     void skip_whitespace(std::string&, size_t&);
     token_types get_next_token(std::string&, size_t&);
     std::string get_var_name(std::string&, size_t&);
 };
 
-#define PARSER_H
+
 
 #endif //PROOFCHECKER_PARSER_H
