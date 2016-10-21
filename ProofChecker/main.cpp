@@ -3,6 +3,7 @@
 #include "axioms.h"
 
 #include "temporary_functions_for_debug.h"
+#include "hash.h"
 
 int main()
 {
@@ -10,9 +11,12 @@ int main()
     std::string str = "(AB & BC) | (CD & BCD) -> !(ABCD12 -> K8 -> K5)";
     ast tree(str);
 
+    //for next commit
+    //TODO: function to check if tree is an axiom
+
     axioms ax;
     for (size_t i = 0; i < ax.axiom_ast.size(); i++)
-        ast_visualisator(ax.axiom_ast[i]);
+        std::cout << std::hash<ast>{}(ax.axiom_ast[i]) << std::endl;
 
     std::cout << "\nfinished" << std::endl;
     return 0;
