@@ -18,39 +18,31 @@ std::shared_ptr<parser::node> parser::build_AST_from_postfix()
     }
 
     size_t cur_ind = 0;
-    std::stack<node *> var_nodes_stack;
+    std::stack<std::shared_ptr<node>> var_nodes_stack;
 
     while (cur_ind < postfix_notation.size())
     {
         token_types token = get_next_token(postfix_notation, cur_ind);
         if (token == var)
         {
-            var_nodes_stack.push(new node(get_var_name(postfix_notation, cur_ind)));
+            var_nodes_stack.push(std::shared_ptr<node>(new node(get_var_name(postfix_notation, cur_ind))));
         } else if (token == neg)
         {
-            node *new_node = new node(token, var_nodes_stack.top(), NULL);
+            std::shared_ptr<node> new_node = std::shared_ptr<node>(new node(token, var_nodes_stack.top(), NULL));
             var_nodes_stack.pop();
             var_nodes_stack.push(new_node);
         }
         else
         {
-            node *right_son = var_nodes_stack.top();
+            std::shared_ptr<node> right_son = var_nodes_stack.top();
             var_nodes_stack.pop();
-            node *new_node = new node(token, var_nodes_stack.top(), right_son);
+            std::shared_ptr<node> new_node = std::shared_ptr<node>(new node(token, var_nodes_stack.top(), right_son));
             var_nodes_stack.pop();
             var_nodes_stack.push(new_node);
         }
     }
     std::shared_ptr<node> ret(var_nodes_stack.top());
     return ret;
-}
-
-parser::node::~node()
-{
-    if (this->left != NULL)
-        delete this->left;
-    if (this->right != NULL)
-        delete this->right;
 }
 
 //private:

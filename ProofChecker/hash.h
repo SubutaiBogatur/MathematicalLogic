@@ -25,10 +25,10 @@ namespace std
     public:
         size_t operator()(const ast& x) const
         {
-            return recursive_hash_counter(x.root.get());
+            return recursive_hash_counter(x.root);
         }
     private:
-        size_t recursive_hash_counter(parser::node *nod) const
+        size_t recursive_hash_counter(std::shared_ptr<parser::node> nod) const
         {
             if (nod->left != NULL && nod->right != NULL)
             {

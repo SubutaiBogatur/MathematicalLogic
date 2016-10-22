@@ -16,15 +16,20 @@ ast::ast(std::string const& expression)
     root = parser(expression).build_AST_from_postfix();
 }
 
-uint8_t ast::is_tree_an_axiom() const
+ast::ast(std::shared_ptr<parser::node> new_root)
+{
+    root = new_root;
+}
+
+uint8_t ast::is_an_axiom() const
 {
     assert(axioms::axiom_ast.size() == 10); //ensure, that axioms initialized
     for (size_t i = 0; i < axioms::axiom_ast.size(); i++)
     {
         try
         {
-            std::unordered_map<std::string, std::vector<parser::node *>> greek_letters;
-            recursive_axiom_equality_check(this->root.get(), axioms::axiom_ast[i].root.get(), greek_letters);
+            std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node>>> greek_letters;
+            recursive_axiom_equality_check(this->root, axioms::axiom_ast[i].root, greek_letters);
             greek_letters_equality_check(greek_letters);
             return static_cast<uint8_t>(i + 1);
         } catch (ast_exception&)
@@ -33,11 +38,16 @@ uint8_t ast::is_tree_an_axiom() const
     return 0;
 }
 
-bool ast::is_the_same(ast& other)
+bool ast::is_implication_first()
+{
+    return this->root->type == impl;
+}
+
+bool ast::is_the_same(ast const& other) const
 {
     try
     {
-        recursive_equality_check(this->root.get(), other.root.get());
+        recursive_equality_check(this->root, other.root);
         return true;
     } catch (ast_exception& e)
     {
@@ -45,10 +55,15 @@ bool ast::is_the_same(ast& other)
     }
 }
 
+bool operator==(const ast& lhs, const ast& rhs)
+{
+    return ast(lhs).is_the_same(rhs);
+}
+
 //private:
 
-void ast::recursive_axiom_equality_check(parser::node *nod_expr, parser::node *nod_ax,
-                                         std::unordered_map<std::string, std::vector<parser::node *>>& greek_letters) const
+void ast::recursive_axiom_equality_check(std::shared_ptr<parser::node> nod_expr, std::shared_ptr<parser::node> nod_ax,
+                                         std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node> >>& greek_letters) const
 {
     if (nod_ax->left != NULL && nod_ax->right != NULL)
     {
@@ -78,7 +93,7 @@ void ast::recursive_axiom_equality_check(parser::node *nod_expr, parser::node *n
         if (finded == greek_letters.end())//greek letter wasn't inserted
         {
             //associating greek letter in ax node with ptr to expr node to check if all greek letters are the same later
-            greek_letters.insert({nod_ax->var_name, std::vector<parser::node *>(1, nod_expr)});
+            greek_letters.insert({nod_ax->var_name, std::vector<std::shared_ptr<parser::node> >(1, nod_expr)});
         }
         else //letter was already inserted
         {
@@ -88,7 +103,7 @@ void ast::recursive_axiom_equality_check(parser::node *nod_expr, parser::node *n
 }
 
 void ast::greek_letters_equality_check(
-        std::unordered_map<std::string, std::vector<parser::node *>>& greek_letters) const
+        std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node> >>& greek_letters) const
 {
     for (auto it = greek_letters.begin(); it != greek_letters.end(); it++)
     {
@@ -104,7 +119,7 @@ void ast::greek_letters_equality_check(
     }
 }
 
-void ast::recursive_equality_check(parser::node *nod_expr, parser::node *nod_ax) const
+void ast::recursive_equality_check(std::shared_ptr<parser::node> nod_expr, std::shared_ptr<parser::node> nod_ax) const
 {
     if (nod_expr->left != NULL && nod_expr->right != NULL)
     {

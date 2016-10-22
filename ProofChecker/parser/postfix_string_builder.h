@@ -36,7 +36,8 @@ struct postfix_string_builder
     std::stack<token_types> operand_stack;
     size_t current_index;
 
-    postfix_string_builder(std::string const& expression, std::string& outp) : expression(expression), output_string(outp), current_index(0)
+    postfix_string_builder(std::string const& expression, std::string& outp) : expression(expression),
+                                                                               output_string(outp), current_index(0)
     { }
 
     void build_postfix_notation_string();

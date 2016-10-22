@@ -16,19 +16,21 @@ public:
 
     struct node
     {
-        ~node();
+        //~node(); destructor isn't needed 'cause we use shared_ptrs
 
         node(std::string name) : type(var), left(NULL), right(NULL), var_name(name)
         { }
 
-        node(token_types typ, node *left_son, node *right_son) : type(typ), left(left_son), right(right_son)
+        node(token_types typ, std::shared_ptr<node> left_son, std::shared_ptr<node> right_son) : type(typ),
+                                                                                                 left(left_son),
+                                                                                                 right(right_son)
         { }
 
         token_types type;
         std::string var_name;
 
-        node *left;
-        node *right;
+        std::shared_ptr<node> left;
+        std::shared_ptr<node> right;
     };
 
 private:
@@ -41,7 +43,6 @@ private:
     token_types get_next_token(std::string&, size_t&);
     std::string get_var_name(std::string&, size_t&);
 };
-
 
 
 #endif //PROOFCHECKER_PARSER_H

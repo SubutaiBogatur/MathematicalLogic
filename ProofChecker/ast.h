@@ -5,7 +5,7 @@
 #ifndef PROOFCHECKER_AST_H
 #define PROOFCHECKER_AST_H
 
-#include "parser.h"
+#include "parser/parser.h"
 #include <assert.h>
 #include <vector>
 #include <unordered_map>
@@ -15,24 +15,27 @@ struct ast
 public:
     std::shared_ptr<parser::node> root;
 
-    //TODO
-    //uint32_t hash_of_the_tree; //??
-
     ast(std::string const& expression);
+    ast(std::shared_ptr<parser::node>);
+
 
     //post:
     // if not an axiom returns 0
     // else returns number of axiom (i + 1)
-    uint8_t is_tree_an_axiom() const;
+    uint8_t is_an_axiom() const;
 
-    bool is_the_same(ast &);
-
+    bool is_implication_first();
+    bool is_the_same(ast const&) const;
 private:
-    void recursive_axiom_equality_check(parser::node *, parser::node *,
-                                        std::unordered_map<std::string, std::vector<parser::node *>>&) const;
-    void recursive_equality_check(parser::node *, parser:: node *) const;
-    void greek_letters_equality_check(std::unordered_map<std::string, std::vector<parser::node *>>&) const;
+    void recursive_axiom_equality_check(std::shared_ptr<parser::node>, std::shared_ptr<parser::node>,
+                                        std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node>>>&) const;
+    void recursive_equality_check(std::shared_ptr<parser::node>, std::shared_ptr<parser::node>) const;
+    void greek_letters_equality_check(
+            std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node> >>&) const;
+
+    friend bool operator==(const ast& lhs, const ast& rhs);
 };
 
+bool operator==(const ast& lhs, const ast& rhs);
 
 #endif //PROOFCHECKER_AST_H
