@@ -11,7 +11,7 @@
 struct axioms
 {
 public:
-    std::vector<ast> axiom_ast;
+    static std::vector<ast> axiom_ast;
     axioms();
 };
 

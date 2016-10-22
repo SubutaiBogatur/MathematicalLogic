@@ -6,6 +6,9 @@
 #define PROOFCHECKER_AST_H
 
 #include "parser.h"
+#include <assert.h>
+#include <vector>
+#include <unordered_map>
 
 struct ast
 {
@@ -16,11 +19,19 @@ public:
     //uint32_t hash_of_the_tree; //??
 
     ast(std::string const& expression);
-//    ast(std::shared_ptr<parser::node> rt):root(rt ){}
+
+    //post:
+    // if not an axiom returns 0
+    // else returns number of axiom (i + 1)
+    uint8_t is_tree_an_axiom() const;
+
+    bool is_the_same(ast &);
 
 private:
-    //TODO
-    //build_hash()?
+    void recursive_axiom_equality_check(parser::node *, parser::node *,
+                                        std::unordered_map<std::string, std::vector<parser::node *>>&) const;
+    void recursive_equality_check(parser::node *, parser:: node *) const;
+    void greek_letters_equality_check(std::unordered_map<std::string, std::vector<parser::node *>>&) const;
 };
 
 

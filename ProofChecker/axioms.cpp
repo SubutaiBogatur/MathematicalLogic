@@ -4,7 +4,7 @@
 
 #include "axioms.h"
 
-static std::vector<std::string> axiom_names
+static const std::vector<std::string> axiom_names
         {"PHI -> (PSI -> PHI)",
          "(PHI -> PSI) -> (PHI -> PSI -> THETA) -> (PHI -> THETA)",
          "PHI -> (PSI -> PHI & PSI)",
@@ -16,6 +16,9 @@ static std::vector<std::string> axiom_names
          "(PHI -> PSI) -> ((PHI -> !PSI) -> !PHI)",
          "!!PHI -> PHI",
         };
+
+//initializing static field
+std::vector<ast> axioms::axiom_ast;
 
 axioms::axioms()
 {
