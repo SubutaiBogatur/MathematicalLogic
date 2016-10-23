@@ -1,5 +1,5 @@
 //
-// Created by aleksandr on 19.10.16.
+// Created by Aleksandr Tukallo on 19.10.16.
 //
 
 #include "ast.h"
@@ -21,7 +21,7 @@ ast::ast(std::shared_ptr<parser::node> new_root)
     root = new_root;
 }
 
-uint8_t ast::is_an_axiom() const
+uint16_t ast::is_an_axiom() const
 {
     assert(axioms::axiom_ast.size() == 10); //ensure, that axioms initialized
     for (size_t i = 0; i < axioms::axiom_ast.size(); i++)
@@ -31,7 +31,7 @@ uint8_t ast::is_an_axiom() const
             std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node>>> greek_letters;
             recursive_axiom_equality_check(this->root, axioms::axiom_ast[i].root, greek_letters);
             greek_letters_equality_check(greek_letters);
-            return static_cast<uint8_t>(i + 1);
+            return static_cast<uint16_t>(i + 1);
         } catch (ast_exception&)
         { }
     }

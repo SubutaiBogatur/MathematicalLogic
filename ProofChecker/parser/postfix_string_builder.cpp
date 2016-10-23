@@ -1,5 +1,5 @@
 //
-// Created by aleksandr on 14.10.16.
+// Created by Aleksandr Tukallo on 14.10.16.
 //
 
 #include "postfix_string_builder.h"

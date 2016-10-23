@@ -1,5 +1,5 @@
 //
-// Created by aleksandr on 03.10.16.
+// Created by Aleksandr Tukallo on 03.10.16.
 //
 
 #include "parser.h"

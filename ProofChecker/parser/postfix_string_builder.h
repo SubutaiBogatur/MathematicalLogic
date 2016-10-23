@@ -1,5 +1,5 @@
 //
-// Created by aleksandr on 14.10.16.
+// Created by Aleksandr Tukallo on 14.10.16.
 //
 
 #ifndef PROOFCHECKER_POSTFIX_STRING_BUILDER_H

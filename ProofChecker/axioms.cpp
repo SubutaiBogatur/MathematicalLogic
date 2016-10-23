@@ -1,5 +1,5 @@
 //
-// Created by aleksandr on 19.10.16.
+// Created by Aleksandr Tukallo on 19.10.16.
 //
 
 #include "axioms.h"

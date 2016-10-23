@@ -1,5 +1,5 @@
 //
-// Created by aleksandr on 20.10.16.
+// Created by Aleksandr Tukallo on 20.10.16.
 //
 
 #ifndef PROOFCHECKER_HASH_H
