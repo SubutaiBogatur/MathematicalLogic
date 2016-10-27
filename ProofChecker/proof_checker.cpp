@@ -101,13 +101,15 @@ void proof_checker::check_proof()
                 if ((*it_pr).line_num < 0)
                 {
                     std::cout << " (Предп. " << std::abs((*it_pr).line_num) << ")" << std::endl;
+                    continue;
                 } else
                 {
-                    std::cout << " (Доказано в стр. " << (*it_pr).line_num << ")" << std::endl;
+//                    We don't write annotations in case, if it was proved earlier
+//                    std::cout << " (Доказано в стр. " << (*it_pr).line_num << ")" << std::endl;
                 }
-                continue;
+//                continue;
             }
-            //else (wasn't proved)
+            //if not a hypothesis
             auto it_mp = mp.find(tree); //let's see if it can be proved by mp already
             if (it_mp == mp.end())
             {
