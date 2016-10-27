@@ -18,6 +18,13 @@ public:
     {
         //~node(); destructor isn't needed 'cause we use shared_ptrs
 
+        token_types type;
+
+        std::shared_ptr<node> left;
+        std::shared_ptr<node> right;
+
+        std::string var_name;
+
         node(std::string name) : type(var), left(NULL), right(NULL), var_name(name)
         { }
 
@@ -25,12 +32,6 @@ public:
                                                                                                  left(left_son),
                                                                                                  right(right_son)
         { }
-
-        token_types type;
-        std::string var_name;
-
-        std::shared_ptr<node> left;
-        std::shared_ptr<node> right;
     };
 
 private:

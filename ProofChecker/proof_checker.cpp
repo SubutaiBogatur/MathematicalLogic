@@ -44,6 +44,17 @@ static bool value_contains_proved_tree(std::vector<ast>& vect, std::unordered_se
     return false;
 }
 
+void print_with_no_whitespaces(std::string& str)
+{
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        if(str[i] == ' ')
+            continue;
+
+        std::cout << str[i];
+    }
+}
+
 void proof_checker::check_proof()
 {
 //    UTF8?
@@ -68,7 +79,8 @@ void proof_checker::check_proof()
     while (std::getline(std::cin, line_with_expression))
     {
         global_counter++;
-        std::cout << "(" << global_counter << ") " << line_with_expression;
+        std::cout << "(" << global_counter << ") ";
+        print_with_no_whitespaces(line_with_expression);
 
         ast tree(line_with_expression);
 
@@ -150,7 +162,7 @@ void proof_checker::analyze_title(std::unordered_set<ast>& proved, std::unordere
     int32_t hypo_counter = -1;
     for (size_t i = 0; i < title.size(); i++)
     {
-        if ((i + 1 < title.size() && title[i] == '|' && title[i + 1] == '-' || title[i] == ',') && i != 0)
+        if (((i + 1 < title.size() && title[i] == '|' && title[i + 1] == '-' )|| title[i] == ',') && i != 0)
         {
             //if finish of current hypothesis expression
             ast hypo_tree(hypo);

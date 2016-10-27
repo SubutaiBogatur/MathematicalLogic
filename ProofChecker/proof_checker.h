@@ -19,8 +19,8 @@ public:
     //generates output file
     void check_proof();
 private:
-    std::string const output_file_name;
     std::string const input_file_name;
+    std::string const output_file_name;
 
     void analyze_title(std::unordered_set<ast>&, std::unordered_map<ast, std::vector<ast>>&);
 };
