@@ -23,7 +23,7 @@ ast::ast(std::shared_ptr<parser::node> new_root)
 
 uint16_t ast::is_an_axiom() const
 {
-    assert(axioms::axiom_ast.size() == 10); //ensure, that axioms initialized
+    assert(axioms::axiom_ast.size() == 10); //ensure that axioms initialized
     for (size_t i = 0; i < axioms::axiom_ast.size(); i++)
     {
         try

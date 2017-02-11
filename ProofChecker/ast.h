@@ -13,14 +13,13 @@
 struct ast
 {
 public:
+    //fields are public, because they are accessed from proof_checker a lot
     std::shared_ptr<parser::node> root;
-
     //if proved negative - it's num of hypothesis
     int32_t line_num;
 
     ast(std::string const& expression);
     ast(std::shared_ptr<parser::node>);
-
 
     //post:
     // if not an axiom returns 0
@@ -29,6 +28,7 @@ public:
 
     bool is_implication_first();
     bool is_the_same(ast const&) const;
+
 private:
     void recursive_axiom_equality_check(std::shared_ptr<parser::node>, std::shared_ptr<parser::node>,
                                         std::unordered_map<std::string, std::vector<std::shared_ptr<parser::node>>>&) const;

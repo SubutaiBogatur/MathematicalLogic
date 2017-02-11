@@ -8,7 +8,8 @@
 
 std::shared_ptr<parser::node> parser::build_AST_from_postfix()
 {
-    //here postfix string using struct postfix_string_builder is built, then AST using postfix string is built. As a result, string is being read twice, though it can be read once.
+    //here postfix string using struct postfix_string_builder is built, then AST using postfix string is built.
+    //  As a result, string is being read twice, though it can be read once.
 
     std::string postfix_notation;
 
@@ -25,24 +26,24 @@ std::shared_ptr<parser::node> parser::build_AST_from_postfix()
         token_types token = get_next_token(postfix_notation, cur_ind);
         if (token == var)
         {
-            var_nodes_stack.push(std::shared_ptr<node>(new node(get_var_name(postfix_notation, cur_ind))));
+            var_nodes_stack.push(std::make_shared<node>(get_var_name(postfix_notation, cur_ind)));
         } else if (token == neg)
         {
-            std::shared_ptr<node> new_node = std::shared_ptr<node>(new node(token, var_nodes_stack.top(), NULL));
+            std::shared_ptr<node> new_node = std::make_shared<node>(token, var_nodes_stack.top(), (std::shared_ptr<node>)NULL); //cast is made, because sh_ptr is not primitive ptr
             var_nodes_stack.pop();
             var_nodes_stack.push(new_node);
-        }
-        else
+        } else
         {
-            std::shared_ptr<node> right_son = var_nodes_stack.top();
+            std::shared_ptr<node> right_son;
+            right_son = var_nodes_stack.top();
             var_nodes_stack.pop();
-            std::shared_ptr<node> new_node = std::shared_ptr<node>(new node(token, var_nodes_stack.top(), right_son));
+
+            std::shared_ptr<node> new_node = std::make_shared<node>(token, var_nodes_stack.top(), right_son);
             var_nodes_stack.pop();
             var_nodes_stack.push(new_node);
         }
     }
-    std::shared_ptr<node> ret(var_nodes_stack.top());
-    return ret;
+    return var_nodes_stack.top();
 }
 
 //private:

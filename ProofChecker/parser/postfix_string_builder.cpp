@@ -107,7 +107,7 @@ void postfix_string_builder::binary_postfx()
     return;
 }
 
-//post: moves cuurent_index to the next symbol after the end of the token
+//post: moves current_index to the next symbol after the end of the token
 token_types postfix_string_builder::get_next_token(bool move_index)
 {
     skip_whitespace();
@@ -184,21 +184,12 @@ bool postfix_string_builder::is_preced_stack_head_bigger(token_types new_token)
     //if right associative
     if (new_token == impl)
     {
-        //if operand on head of stack has bigger precedence, than new operand
-        if ((*operand_precedence.find(operand_stack.top())).second > (*operand_precedence.find(new_token)).second)
-        {
-            return true;
-        }
-        else
-            return false;
+        //if operand on head of stack has bigger precedence, than new operand, return true
+        return (*operand_precedence.find(operand_stack.top())).second > (*operand_precedence.find(new_token)).second;
     } else
     {
         //same, but less or equal for left-associative operations
-        if ((*operand_precedence.find(operand_stack.top())).second >= (*operand_precedence.find(new_token)).second)
-        {
-            return true;
-        }
-        else return false;
+        return (*operand_precedence.find(operand_stack.top())).second >= (*operand_precedence.find(new_token)).second;
     }
 }
 

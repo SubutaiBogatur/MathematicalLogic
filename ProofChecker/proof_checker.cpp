@@ -48,7 +48,7 @@ void print_with_no_whitespaces(std::string& str)
 {
     for (size_t i = 0; i < str.size(); i++)
     {
-        if(str[i] == ' ')
+        if (str[i] == ' ')
             continue;
 
         std::cout << str[i];
@@ -60,13 +60,19 @@ void proof_checker::check_proof()
 //    UTF8?
 //    std::setlocale(LC_ALL, "en_US.UTF-8");
 
-    //building axioms
-    axioms ax;
+    {
+        //building axioms to access them later as static field
+        axioms axioms;
+    }
     //making cin and cout faster
     std::ios_base::sync_with_stdio(false);
 
-    std::freopen(input_file_name.c_str(), "r", stdin);
-    std::freopen(output_file_name.c_str(), "w", stdout);
+    FILE *in_stream = std::freopen(input_file_name.c_str(), "r", stdin);
+    FILE *out_stream = std::freopen(output_file_name.c_str(), "w", stdout);
+    if (in_stream == NULL || out_stream == NULL)
+    {
+        throw std::invalid_argument("Incorrect input or output file's name");
+    }
 
     std::unordered_set<ast> proved;
     std::unordered_map<ast, std::vector<ast>> mp;
@@ -153,7 +159,7 @@ void proof_checker::check_proof()
 
 //private:
 
-//function addes hypotheses to proved and also to mp
+//function adds hypotheses to proved and also to mp
 void proof_checker::analyze_title(std::unordered_set<ast>& proved, std::unordered_map<ast, std::vector<ast>>& mp)
 {
     std::string title;
@@ -164,9 +170,9 @@ void proof_checker::analyze_title(std::unordered_set<ast>& proved, std::unordere
     int32_t hypo_counter = -1;
     for (size_t i = 0; i < title.size(); i++)
     {
-        if (((i + 1 < title.size() && title[i] == '|' && title[i + 1] == '-' )|| title[i] == ',') && i != 0)
+        if (((i + 1 < title.size() && title[i] == '|' && title[i + 1] == '-') || title[i] == ',') && i != 0)
         {
-            //if finish of current hypothesis expression
+            //if end of current hypothesis expression
             ast hypo_tree(hypo);
             hypo_tree.line_num = hypo_counter;
             mp_insert_if_needed(hypo_tree, mp, hypo_counter);
@@ -180,7 +186,7 @@ void proof_checker::analyze_title(std::unordered_set<ast>& proved, std::unordere
 
         if (i + 1 < title.size() && title[i] == '|' && title[i + 1] == '-')
         {
-            return; //seems like we don't need the expression to prove.
+            return; //seems like we don't need the expression to prove at all
 //            i++;
         }
     }

@@ -19,6 +19,7 @@ namespace hash_numbers
 
 namespace std
 {
+    //this class is specialization of std::hash class for written-by-me ast class
     template<>
     struct hash<ast>
     {

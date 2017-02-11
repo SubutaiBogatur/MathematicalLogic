@@ -5,7 +5,7 @@
 #ifndef PROOFCHECKER_POSTFIX_STRING_BUILDER_H
 #define PROOFCHECKER_POSTFIX_STRING_BUILDER_H
 
-#include <string>
+#include "parser_exception.h"
 #include <stack>
 #include <map>
 #include <cstdint>
@@ -21,24 +21,14 @@ enum token_types
     var,
 };
 
-struct parser_exception
-{
-    std::string msg;
-
-    parser_exception(std::string message) : msg(message)
-    { }
-};
-
 struct postfix_string_builder
 {
     std::string const& expression;
     std::string& output_string;
-    std::stack<token_types> operand_stack;
-    size_t current_index;
 
-    postfix_string_builder(std::string const& expression, std::string& outp) : expression(expression),
-                                                                               output_string(outp), current_index(0)
-    { }
+    postfix_string_builder(std::string const& expression, std::string& output) : expression(expression),
+                                                                                 output_string(output), current_index(0)
+    {}
 
     void build_postfix_notation_string();
 
@@ -50,6 +40,9 @@ private:
     //  factor: F --> "(" E ")" | U F | v[variable]
     //  unary:  U --> "!"
     //  binary: B --> "&" | "|" | "->"
+
+    std::stack<token_types> operand_stack;
+    size_t current_index;
 
     void expr_postfx();
     void factor_postfx();

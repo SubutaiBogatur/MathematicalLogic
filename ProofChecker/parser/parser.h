@@ -12,8 +12,6 @@ struct parser
 {
     friend struct ast;
 public:
-    std::string const& expression;
-
     struct node
     {
         //~node(); destructor isn't needed 'cause we use shared_ptrs
@@ -35,6 +33,8 @@ public:
     };
 
 private:
+    std::string const& expression;
+
     parser(std::string const& expression) : expression(expression)
     { }
     std::shared_ptr<node> build_AST_from_postfix(); //builds AST from postfix string
