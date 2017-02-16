@@ -2,7 +2,7 @@
 // Created by Aleksandr Tukallo on 22.10.16.
 //
 
-#include "proof_checker.h"
+#include "classical_logic_proof_checker.h"
 #include <iostream>
 
 //public:
@@ -55,7 +55,7 @@ void print_with_no_whitespaces(std::string& str)
     }
 }
 
-void proof_checker::check_proof()
+void classical_logic_proof_checker::check_proof()
 {
 //    UTF8?
 //    std::setlocale(LC_ALL, "en_US.UTF-8");
@@ -160,7 +160,7 @@ void proof_checker::check_proof()
 //private:
 
 //function adds hypotheses to proved and also to mp
-void proof_checker::analyze_title(std::unordered_set<ast>& proved, std::unordered_map<ast, std::vector<ast>>& mp)
+void classical_logic_proof_checker::analyze_title(std::unordered_set<ast>& proved, std::unordered_map<ast, std::vector<ast>>& mp)
 {
     std::string title;
     std::getline(std::cin, title);

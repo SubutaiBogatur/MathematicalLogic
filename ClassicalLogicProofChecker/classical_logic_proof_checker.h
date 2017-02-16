@@ -10,10 +10,10 @@
 #include "axioms.h"
 #include "hash.h"
 
-struct proof_checker
+struct classical_logic_proof_checker
 {
 public:
-    proof_checker(std::string const& in, std::string const& out) : input_file_name(in), output_file_name(out)
+    classical_logic_proof_checker(std::string const& in, std::string const& out) : input_file_name(in), output_file_name(out)
     { };
 
     //generates output file

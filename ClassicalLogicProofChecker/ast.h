@@ -13,7 +13,7 @@
 struct ast
 {
 public:
-    //fields are public, because they are accessed from proof_checker a lot
+    //fields are public, because they are accessed from classical_logic_proof_checker a lot
     std::shared_ptr<parser::node> root;
     //if proved negative - it's num of hypothesis
     int32_t line_num;

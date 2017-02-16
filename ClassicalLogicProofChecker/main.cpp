@@ -1,5 +1,5 @@
 #include <iostream>
-#include "proof_checker.h"
+#include "classical_logic_proof_checker.h"
 #include <ctime>
 
 int main()
@@ -9,7 +9,7 @@ int main()
 //    double duration;
 //    start = std::clock();
 
-    proof_checker checker("../tests/samples/good1.in", "../tests/output.txt");
+    classical_logic_proof_checker checker("../tests/samples/good6.in", "../tests/output.txt");
     checker.check_proof();
 
     //strings below are needed to see duration of program working in terminal
