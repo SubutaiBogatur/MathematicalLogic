@@ -31,18 +31,19 @@ enum token_types
     EQUALITY
 };
 
-// Predicate can have multiple or zero arguments,
-//  it's when ARGUMENTS token_type is needed, eg:
-//  P(a,b) is converted in:
-//      P
-//       \
-//      ARGS
-//        \
-//       ARGS
-//      /   \
-//     a    ARGS
-//          /
-//         b
+/* Predicate can have multiple or zero arguments,
+  it's when ARGUMENTS token_type is needed, eg:
+  P(a,b) is converted in:
+      P
+       \
+      ARGS
+        \
+       ARGS
+      /   \
+     a    ARGS
+          /
+         b
+ */
 
 struct predicate_ast
 {
@@ -53,7 +54,8 @@ public:
     std::string to_string();
     //todo a lot of useful functions
 
-private:
+    //todo private
+public:
     struct node
     {
         typedef std::shared_ptr<node> node_ptr;

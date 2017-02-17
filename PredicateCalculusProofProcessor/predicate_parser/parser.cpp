@@ -7,20 +7,35 @@
 
 // Our grammar:
 //
-// <expr> ::= <disj>|<disj>"->"<expr>
-// <disj> ::= <conj>|<disj>"|"<conj>
-// <conj> ::= <unary>|<conj>"&"<unary>
-// <unary> ::= <predicate>|"!"<unary>
-//                | "("<expr>")" | ("@"|"?")<var><unary>
+// <expr> ::= <disj>
+//              |<disj>"->"<expr>
+// <disj> ::= <conj>
+//              |<disj>"|"<conj>
+// <conj> ::= <unary>
+//              |<conj>"&"<unary>
+// <unary> ::= <predicate>
+//              |"!"<unary>
+//              | "("<expr>")"
+//              | ("@"|"?")<var><unary>
 // <var> ::= ("a"..."z"){"0"..."9"}*
 // <predicate> ::= ("A"..."Z"){"0"..."9"}*["("<term>{","<term>}*")"]
-//                |<term>"="<term>
-// <term> ::= <sum>|<term>"+"<sum>
-// <sum> ::= <mul>|<sum>"*"<mul>
+//              |<term>"="<term>
+// <term> ::= <sum>
+//              |<term>"+"<sum>
+// <sum> ::= <mul>
+//              |<sum>"*"<mul>
 // <mul> ::= ("a"..."z"){"0"..."9"}*"("<term>{","<term>}*")"
-//                |<var>|"("<term>")"|"0"|<mul>"’"
+//              |<var>
+//              |"("<term>")"
+//              |"0"
+//              |<mul>"'"
 
 //inv: cur_ind points to first not processed symbol
+
+predicate_ast parser::parse()
+{
+    return predicate_ast(get_expression());
+}
 
 parser::node_ptr parser::get_expression()
 {
@@ -86,7 +101,8 @@ parser::node_ptr parser::get_unary()
         case '!':
             cur_ind++;
             return std::make_shared<predicate_ast::node>((node_ptr) NULL, get_unary(), NEGATION);
-        case '@' | '?':
+        case '@':
+        case '?':
             token_types res_type = to_parse[cur_ind] == '@' ? FOR_ALL : EXISTS;
             cur_ind++;
             node_ptr res = std::make_shared<predicate_ast::node>((node_ptr) NULL, (node_ptr) NULL, res_type);
@@ -233,10 +249,10 @@ parser::node_ptr parser::get_function()
     return res;
 }
 
-//todo check from here to end of file for correct cur ind succs
-//todo also for skip whitespaces
 parser::node_ptr parser::get_predicate()
 {
+    skip_whitespaces();
+    ensure_length(0);
     if (to_parse[cur_ind] >= 'A' && to_parse[cur_ind] <= 'Z')
     {
         node_ptr res = std::make_shared<predicate_ast::node>((node_ptr) NULL, (node_ptr) NULL, PREDICATE,
@@ -245,12 +261,14 @@ parser::node_ptr parser::get_predicate()
         {
             res->right = get_arguments();
         }
+        skip_whitespaces();
         return res;
     } else
     {
         node_ptr res = std::make_shared<predicate_ast::node>((node_ptr) NULL, (node_ptr) NULL, EQUALITY);
         res->left = get_sum();
 
+        ensure_length(0);
         if (to_parse[cur_ind] != '=')
         {
             throw predicate_parser_exception("Expected \"=\" symbol");
@@ -259,6 +277,7 @@ parser::node_ptr parser::get_predicate()
         skip_whitespaces();
         res->right = get_sum();
 
+        skip_whitespaces();
         return res;
     }
 }
@@ -267,6 +286,7 @@ std::string parser::get_function_name()
 {
     skip_whitespaces();
     std::string name;
+    ensure_length(0);
     if (to_parse[cur_ind] < 'a' || to_parse[cur_ind] > 'z')
     {
         throw predicate_parser_exception("Function name expected");
@@ -280,6 +300,7 @@ std::string parser::get_predicate_name()
 {
     skip_whitespaces();
     std::string name;
+    ensure_length(0);
     if (to_parse[cur_ind] < 'A' || to_parse[cur_ind] > 'Z')
     {
         throw predicate_parser_exception("Predicate name expected");
@@ -303,19 +324,19 @@ std::string parser::get_digits_from_name()
 //function ensures that there are l more symbols
 //  in the to_parse string. If true, nothing happens,
 //  else exception is thrown
-void parser::ensure_length(size_t l)
+inline void parser::ensure_length(size_t l)
 {
     if (cur_ind + l >= to_parse.size())
         throw predicate_parser_exception("Expected more symbols");
 }
 
 //function is easy to use in if statements
-bool parser::check_length(size_t l)
+inline bool parser::check_length(size_t l)
 {
     return cur_ind + l < to_parse.size();
 }
 
-void parser::skip_whitespaces()
+inline void parser::skip_whitespaces()
 {
     while (cur_ind < to_parse.size()
            && (to_parse[cur_ind] == ' '

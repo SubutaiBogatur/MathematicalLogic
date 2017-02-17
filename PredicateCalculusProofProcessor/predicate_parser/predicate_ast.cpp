@@ -5,39 +5,39 @@
 #include "predicate_ast.h"
 
 std::map<token_types, uint8_t> precedence{
-        {EQUALITY,    0},
+        {EQUALITY,       0},
 
-        {FOR_ALL,     1},
-        {EXISTS,      1},
+        {FOR_ALL,        1},
+        {EXISTS,         1},
 
-        {ZERO,        3},
-        {STROKE,      4},
-        {MULTIPLICATION,         5},
-        {SUM,         6},
+        {ZERO,           3},
+        {STROKE,         4},
+        {MULTIPLICATION, 5},
+        {SUM,            6},
 
-        {NEGATION,    8},
-        {CONJUNCTION, 9},
-        {DISJUNCTION, 10},
-        {IMPLICATION, 11},
-        {ARGUMENTS,   12},
+        {NEGATION,       8},
+        {CONJUNCTION,    9},
+        {DISJUNCTION,    10},
+        {IMPLICATION,    11},
+        {ARGUMENTS,      12},
 };
 
 std::map<token_types, std::string> string_representation{
-        {EQUALITY,    "="},
+        {EQUALITY,       "="},
 
-        {FOR_ALL,     "@"},
-        {EXISTS,      "?"},
+        {FOR_ALL,        "@"},
+        {EXISTS,         "?"},
 
-        {ZERO,        "0"},
-        {STROKE,      "’"},
-        {MULTIPLICATION,         "*"},
-        {SUM,         "+"},
+        {ZERO,           "0"},
+        {STROKE,         "'"},
+        {MULTIPLICATION, "*"},
+        {SUM,            "+"},
 
-        {NEGATION,    "!"},
-        {CONJUNCTION, "&"},
-        {DISJUNCTION, "|"},
-        {IMPLICATION, "->"},
-        {ARGUMENTS,   "args"},
+        {NEGATION,       "!"},
+        {CONJUNCTION,    "&"},
+        {DISJUNCTION,    "|"},
+        {IMPLICATION,    "->"},
+        {ARGUMENTS,      "args"},
 };
 
 predicate_ast::node::node(node_ptr l, node_ptr r, token_types tt) : left(l), right(r), token_type(tt)
