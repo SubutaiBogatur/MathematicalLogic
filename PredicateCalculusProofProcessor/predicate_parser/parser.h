@@ -12,23 +12,23 @@ struct parser
 {
 public:
     parser() = delete;
-    parser(std::string& to_parse) : to_parse(to_parse), cur_ind(0)
+    parser(const std::string& to_parse) : to_parse(to_parse), cur_ind(0)
     {};
 
     predicate_ast parse();
 
     typedef std::shared_ptr<predicate_ast::node> node_ptr;
 private:
-    std::string& to_parse;
+    const std::string& to_parse;
     size_t cur_ind;
 
     node_ptr get_expression();
-    node_ptr get_disjunction();
-    node_ptr get_conjunction();
+    node_ptr get_disjunction(node_ptr prev_disjunction);
+    node_ptr get_conjunction(node_ptr prev_conjunction);
     node_ptr get_unary();
 
     node_ptr get_sum();
-    node_ptr get_mul();
+    node_ptr get_multiplication();
     node_ptr get_multiplier();
 
     node_ptr get_arguments_body();
@@ -36,6 +36,14 @@ private:
 
     node_ptr get_function();
     node_ptr get_predicate();
+
+    void skip_whitespaces();
+    void ensure_length(size_t l);
+    bool check_length(size_t l);
+
+    std::string get_function_name();
+    std::string get_predicate_name();
+    std::string get_digits_from_name();
 };
 
 

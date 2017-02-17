@@ -12,7 +12,7 @@ std::map<token_types, uint8_t> precedence{
 
         {ZERO,        3},
         {STROKE,      4},
-        {MUL,         5},
+        {MULTIPLICATION,         5},
         {SUM,         6},
 
         {NEGATION,    8},
@@ -30,7 +30,7 @@ std::map<token_types, std::string> string_representation{
 
         {ZERO,        "0"},
         {STROKE,      "’"},
-        {MUL,         "*"},
+        {MULTIPLICATION,         "*"},
         {SUM,         "+"},
 
         {NEGATION,    "!"},

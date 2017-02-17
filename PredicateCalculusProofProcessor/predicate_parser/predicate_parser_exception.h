@@ -9,8 +9,18 @@
 
 struct predicate_parser_exception : std::exception
 {
+    std::string msg;
     predicate_parser_exception() : std::exception()
     {};
+    predicate_parser_exception(std::string&& str) : msg(str)
+    {}
+    predicate_parser_exception(std::string& str) : msg(str)
+    {}
+
+    virtual const char* what() const noexcept
+    {
+        return msg.c_str();
+    }
 };
 
 

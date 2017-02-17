@@ -22,7 +22,7 @@ enum token_types
 
     ZERO,
     STROKE, //eg 0'
-    MUL,
+    MULTIPLICATION,
     SUM,
 
     FOR_ALL, //eg @
