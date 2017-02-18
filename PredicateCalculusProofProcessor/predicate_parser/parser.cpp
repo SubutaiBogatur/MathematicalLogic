@@ -3,7 +3,7 @@
 //
 
 #include "parser.h"
-#include "predicate_parser_exception.h"
+#include "utils/predicate_parser_exception.h"
 
 // Our grammar:
 //
@@ -242,7 +242,7 @@ parser::node_ptr parser::get_arguments()
 
 parser::node_ptr parser::get_function()
 {
-    node_ptr res = std::make_shared<predicate_ast::node>((node_ptr) NULL, (node_ptr) NULL, FUNCTION,
+    node_ptr res = std::make_shared<predicate_ast::node>((node_ptr) NULL, (node_ptr) NULL, VARIABLE,
                                                          get_function_name());
     if (check_length(0) && to_parse[cur_ind] == '(')
     {

@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "predicate_proof_processor.h"
+#include "axioms.h"
 
 predicate_proof_processor::predicate_proof_processor(std::string const& input, std::string output)
 {
@@ -58,4 +59,10 @@ void predicate_proof_processor::process_title(std::string const& title)
         to_prove_str.push_back(title[i]);
     }
     this->to_prove = parser(to_prove_str).parse();
+}
+
+//function rebuilds the proof and outputs it or error message to output file
+void predicate_proof_processor::process()
+{
+    axioms::assemble_axioms_if_needed();
 }

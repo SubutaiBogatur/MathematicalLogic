@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <map>
+#include <vector>
+#include <set>
 
 enum token_types
 {
@@ -18,7 +20,7 @@ enum token_types
 
     PREDICATE, //eg P(a, b, c) or P
     VARIABLE, //eg x
-    FUNCTION,  //eg f(a, b)
+//    FUNCTION,  //eg f(a, b) //nb We will treat functions and vars the same. All the funcs are vars from now.
 
     ZERO,
     STROKE, //eg 0'
@@ -52,7 +54,8 @@ public:
     predicate_ast() = delete;
 
     std::string to_string();
-    //todo a lot of useful functions
+    bool is_var_free(std::string const& var);
+    std::vector<std::string> get_all_free_vars();
 
     //todo private
 public:
@@ -80,8 +83,10 @@ public:
     predicate_ast(std::shared_ptr<node> root)
             : root(root)
     {};
-
     std::shared_ptr<node> root;
+
+    bool is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node);
+    void tree_walk(std::set<std::string>& list, std::shared_ptr<node> const& cur_node);
 };
 
 

@@ -2,6 +2,7 @@
 #include "predicate_parser/predicate_ast.h"
 #include "predicate_parser/parser.h"
 #include "predicate_parser/predicate_proof_processor.h"
+#include "predicate_parser/axioms.h"
 
 //todo delete this code
 //structs just for debugging in Clion
@@ -28,18 +29,13 @@ m_expr *ptr_from_shared(std::shared_ptr<predicate_ast::node> sh_ptr)
 
 int main()
 {
-//    predicate_ast ast = parser("@xP(x)").parse();
-//    m_expr *tmp = ptr_from_shared(ast.root);
+//    predicate_proof_processor ppp("./tests/input.in", "./tests/output.out");
+    std::string str = "a=b";
+    m_expr* ptr = ptr_from_shared(parser(str).parse().root);
+    predicate_ast ast = parser(str).parse();
+    std::vector<std::string> vec =  ast.get_all_free_vars();
 
-    predicate_proof_processor ppp("./tests/input.in", "./tests/output.out");
-
-//    m_expr* tmp1 = ptr_from_shared(ppp.hypotheses[0].root);
-//    tmp1 = ptr_from_shared(ppp.hypotheses[1].root);
-//    tmp1 = ptr_from_shared(ppp.hypotheses[2].root);
-//
-//    tmp1 = ptr_from_shared(ppp.to_prove.operator*().root);
-
-    std::cout << "finished" << std::endl;
+    std::cout << "\nfinished" << std::endl;
 
     return 0;
 }
