@@ -1,9 +1,11 @@
 #include <iostream>
 #include "predicate_parser/predicate_ast.h"
 #include "predicate_parser/parser.h"
-#include "expression_generator.h"
+#include "predicate_parser/predicate_proof_processor.h"
 
+//todo delete this code
 //structs just for debugging in Clion
+//they produce a lot of leaks, strictly tmp only
 struct m_expr
 {
     m_expr *left;
@@ -29,19 +31,15 @@ int main()
 //    predicate_ast ast = parser("@xP(x)").parse();
 //    m_expr *tmp = ptr_from_shared(ast.root);
 
-    //testing parser
-    std::freopen("./tests/parser_tests/correct_expressions.in", "w", stdout);
-    expression_generator eg;
-    for (size_t i = 0; i < 10000; i++)
-    {
-        std::string str = eg.get_random_expression();
-        std::cout << str << " seed: " << eg.get_seed();
-        parser(str).parse();
-        std::cout << " parsed succesfully\n";
-    }
+    predicate_proof_processor ppp("./tests/input.in", "./tests/output.out");
 
-//    std::cout << expression_generator::get_random_expression() << std::endl;
-//    std::cout << "finished" << std::endl;
+//    m_expr* tmp1 = ptr_from_shared(ppp.hypotheses[0].root);
+//    tmp1 = ptr_from_shared(ppp.hypotheses[1].root);
+//    tmp1 = ptr_from_shared(ppp.hypotheses[2].root);
+//
+//    tmp1 = ptr_from_shared(ppp.to_prove.operator*().root);
+
+    std::cout << "finished" << std::endl;
 
     return 0;
 }

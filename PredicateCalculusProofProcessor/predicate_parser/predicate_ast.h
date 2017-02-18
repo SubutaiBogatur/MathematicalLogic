@@ -16,7 +16,7 @@ enum token_types
     IMPLICATION,
     ARGUMENTS,
 
-    PREDICATE, //eg P(a, b, c) or P()
+    PREDICATE, //eg P(a, b, c) or P
     VARIABLE, //eg x
     FUNCTION,  //eg f(a, b)
 

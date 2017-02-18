@@ -37,6 +37,8 @@ predicate_ast parser::parse()
     return predicate_ast(get_expression());
 }
 
+//functions for recursive descent parser:
+
 parser::node_ptr parser::get_expression()
 {
     skip_whitespaces();
@@ -320,6 +322,8 @@ std::string parser::get_digits_from_name()
     skip_whitespaces();
     return name_tail;
 }
+
+//util functions:
 
 //function ensures that there are l more symbols
 //  in the to_parse string. If true, nothing happens,
