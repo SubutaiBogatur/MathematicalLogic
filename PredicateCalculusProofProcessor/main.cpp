@@ -3,6 +3,7 @@
 #include "predicate_parser/parser.h"
 #include "predicate_parser/predicate_proof_processor.h"
 #include "predicate_parser/axioms.h"
+#include "predicate_parser/utils/expression_generator.h"
 
 //todo delete this code
 //structs just for debugging in Clion
@@ -27,15 +28,54 @@ m_expr *ptr_from_shared(std::shared_ptr<predicate_ast::node> sh_ptr)
 }
 //end of code for debugging only
 
+void generate_expressions(size_t num)
+{
+    std::freopen("tests/parser_tests/correct_expressions.in", "w", stdout);
+    std::freopen("tests/parser_tests/log.txt", "w", stderr);
+    std::ios::sync_with_stdio(false); //for faster output
+
+    expression_generator eg;
+
+    for (size_t i = 0; i < num; i++)
+    {
+        std::string str = eg.get_random_expression();
+        std::cout << str << std::endl;
+        std::cerr << str << "\t\t seed: " << eg.get_seed() << std::endl;
+    }
+}
+
+void process_exprs(size_t num)
+{
+    std::freopen("tests/parser_tests/correct_expressions.in", "r", stdin);
+    std::freopen("tests/parser_tests/output.out", "w", stdout);
+    for(size_t i = 0; i < num; i++)
+    {
+        std::string e;
+        std::getline(std::cin, e);
+        parser p(e);
+        predicate_ast ast = p.parse();
+        std::cout << ast.to_string() << std::endl;
+    }
+}
+
+void check_processor(size_t num)
+{
+    std::freopen("tests/parser_tests/output.out", "r", stdin);
+    for(size_t i = 0; i < num; i++)
+    {
+        std::string e;
+        std::getline(std::cin, e);
+        parser p(e);
+        predicate_ast ast = p.parse();
+    }
+}
+
 int main()
 {
-//    predicate_proof_processor ppp("./tests/input.in", "./tests/output.out");
-    std::string str = "a=b";
-    m_expr* ptr = ptr_from_shared(parser(str).parse().root);
-    predicate_ast ast = parser(str).parse();
-    std::vector<std::string> vec =  ast.get_all_free_vars();
-
-    std::cout << "\nfinished" << std::endl;
+    size_t num = 1000;
+    generate_expressions(num);
+    process_exprs(num);
+    check_processor(num);
 
     return 0;
 }

@@ -77,16 +77,24 @@ public:
         //constructor automatically chooses right strings
         node(node_ptr l, node_ptr r, token_types tt);
 
-        //todo mb some cool constructors
+        bool has_default_string()
+        {
+            return !(token_type == VARIABLE
+                     /*|| token_type == FUNCTION*/
+                     || token_type == PREDICATE);
+        }
     };
+
+    //the only field
+    std::shared_ptr<node> root;
 
     predicate_ast(std::shared_ptr<node> root)
             : root(root)
     {};
-    std::shared_ptr<node> root;
 
     bool is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node);
     void tree_walk(std::set<std::string>& list, std::shared_ptr<node> const& cur_node);
+    void rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res, uint8_t prev_prec, size_t pos);
 };
 
 

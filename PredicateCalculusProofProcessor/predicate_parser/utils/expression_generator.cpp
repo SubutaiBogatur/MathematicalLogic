@@ -33,6 +33,7 @@
 //              |<mul>"'"
 
 // Constants for random number generators:
+//  Be very careful with stack overflow because of too long recursion!
 const std::array<size_t, 2> expr = {5, 1};
 const std::array<size_t, 2> disj = {5, 1};
 const std::array<size_t, 2> conj = {5, 1};
@@ -51,7 +52,7 @@ const size_t max_argu_numb = 3;
 const size_t alphabet_size = 26;
 
 template<size_t N>
-size_t get_random_index(const std::array<size_t, N>& arr)
+static size_t get_random_index(const std::array<size_t, N>& arr)
 {
     int sum = 0;
     for (size_t i = 0; i < arr.size(); i++)
@@ -82,7 +83,7 @@ static std::string get_term();
 static std::string get_summ();
 static std::string get_mult();
 
-std::string remove_odd_spaces(std::string const& old)
+static std::string remove_odd_spaces(std::string const& old)
 {
     std::string ret;
     size_t space_cnt = 0;
