@@ -66,7 +66,7 @@ parser::node_ptr parser::get_disjunction(node_ptr prev_disjunction)
     {
         res = std::make_shared<predicate_ast::node>(prev_disjunction, res, DISJUNCTION);
     }
-    if (check_length(0) && to_parse[cur_ind] == '|')
+    if (check_length(1) && to_parse[cur_ind] == '|')
     {
         cur_ind++;
         res = get_disjunction(res);

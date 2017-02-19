@@ -16,6 +16,10 @@ public:
     {};
 
     predicate_ast parse();
+    size_t get_length_of_parsed()
+    {
+        return cur_ind;
+    }
 
     typedef std::shared_ptr<predicate_ast::node> node_ptr;
 private:

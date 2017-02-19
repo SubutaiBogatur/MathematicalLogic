@@ -5,58 +5,18 @@
 #include <assert.h>
 #include "predicate_ast.h"
 
-const std::map<token_types, uint8_t> precedence{
-        {EQUALITY,       0},
-        {VARIABLE,       0},
-//        {FUNCTION,       0},
-
-        {FOR_ALL,        1},
-        {EXISTS,         1},
-
-        {PREDICATE,      2},
-
-        {ZERO,           3},
-        {STROKE,         4},
-        {MULTIPLICATION, 5},
-        {SUM,            6},
-
-        {NEGATION,       8},
-        {CONJUNCTION,    9},
-        {DISJUNCTION,    10},
-        {IMPLICATION,    11},
-        {ARGUMENTS,      12},
-};
-
-const std::map<token_types, std::string> string_representation{
-        {EQUALITY,       "="},
-
-        {FOR_ALL,        "@"},
-        {EXISTS,         "?"},
-
-        {ZERO,           "0"},
-        {STROKE,         "'"},
-        {MULTIPLICATION, "*"},
-        {SUM,            "+"},
-
-        {NEGATION,       "!"},
-        {CONJUNCTION,    "&"},
-        {DISJUNCTION,    "|"},
-        {IMPLICATION,    "->"},
-        {ARGUMENTS,      "args"},
-};
-
 predicate_ast::node::node(node_ptr l, node_ptr r, token_types tt) : left(l), right(r), token_type(tt)
 {
     this->str = string_representation.at(tt);
 }
 
-bool predicate_ast::is_var_free(std::string const& var)
+bool predicate_ast::is_var_free(std::string const& var) const
 {
     return is_var_free_rec(var, this->root);
 }
 
 //todo mb test this function on expressions file
-bool predicate_ast::is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node)
+bool predicate_ast::is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node) const
 {
     bool free_in_left = false;
     bool free_in_right = false;
@@ -87,7 +47,7 @@ bool predicate_ast::is_var_free_rec(std::string const& var, std::shared_ptr<node
 }
 
 //function walks the tree and returns vector with the names of all free vars in ast
-std::vector<std::string> predicate_ast::get_all_free_vars()
+std::vector<std::string> predicate_ast::get_all_free_vars() const
 {
     std::set<std::string> set;
     tree_walk(set, this->root);
@@ -106,7 +66,7 @@ std::vector<std::string> predicate_ast::get_all_free_vars()
 }
 
 //functions adds all the variable to the set
-void predicate_ast::tree_walk(std::set<std::string>& set, std::shared_ptr<node> const& cur_node)
+void predicate_ast::tree_walk(std::set<std::string>& set, std::shared_ptr<node> const& cur_node) const
 {
     if (cur_node->token_type == VARIABLE)
     {
@@ -124,7 +84,7 @@ void predicate_ast::tree_walk(std::set<std::string>& set, std::shared_ptr<node> 
     }
 }
 
-std::string predicate_ast::to_string()
+std::string predicate_ast::to_string() const
 {
     std::string ret;
     rec_to_string(root, ret, 255, 1);
@@ -132,7 +92,7 @@ std::string predicate_ast::to_string()
 }
 
 void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res,
-                                  uint8_t prev_prec, size_t pos)
+                                  uint8_t prev_prec, size_t pos) const
 {
     bool assoc = (cur_node->token_type == DISJUNCTION) || (cur_node->token_type == CONJUNCTION);
     bool brack = precedence.at(cur_node->token_type) > prev_prec
@@ -184,3 +144,33 @@ void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::st
         res.push_back(')');
     }
 }
+
+bool predicate_ast::equals(predicate_ast const& other) const
+{
+    return recursive_equals(this->root, other.root);
+}
+
+bool predicate_ast::recursive_equals(std::shared_ptr<node> const& this_node,
+                                     std::shared_ptr<node> const& other_node) const
+{
+    if (!this_node->equals(*other_node))
+        return false;
+
+    if (this_node->left != NULL && other_node->left != NULL
+        && this_node->right != NULL && other_node->right != NULL)
+        return recursive_equals(this_node->left, other_node->left)
+               && recursive_equals(this_node->right, other_node->right);
+
+    if (this_node->left != NULL && other_node->left != NULL)
+        return recursive_equals(this_node->left, other_node->left);
+
+    if (this_node->right != NULL && other_node->right != NULL)
+        return recursive_equals(this_node->right, other_node->right);
+
+    if (this_node->is_leave() && other_node->is_leave())
+        return true;
+
+    //else children are different
+    return false;
+}
+

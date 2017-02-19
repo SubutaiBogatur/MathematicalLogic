@@ -10,6 +10,7 @@
 #include "predicate_ast.h"
 #include "parser.h"
 #include <experimental/optional>
+#include "axioms.h"
 
 struct predicate_proof_processor
 {
@@ -31,7 +32,7 @@ public:
     std::vector<predicate_ast> lines;
     std::experimental::optional<predicate_ast> to_prove; //optional because of lack of empty constructor
 
-    void process_title(std::string const&);
+    void process_title(std::string);
 };
 
 

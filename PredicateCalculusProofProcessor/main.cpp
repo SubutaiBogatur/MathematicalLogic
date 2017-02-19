@@ -72,10 +72,17 @@ void check_processor(size_t num)
 
 int main()
 {
-    size_t num = 1000;
-    generate_expressions(num);
-    process_exprs(num);
-    check_processor(num);
+//    size_t num = 1000;
+//    generate_expressions(num);
+//    process_exprs(num);
+//    check_processor(num);
+
+//    axioms::assemble_axioms_if_needed();
+//    m_expr* ptr = ptr_from_shared(axioms::axioms_log[0].root);
+//    std::cout << "finished" << std::endl;
+
+    predicate_proof_processor p("tests/samples/correct15.in", "tests/output.out");
+    p.process();
 
     return 0;
 }
