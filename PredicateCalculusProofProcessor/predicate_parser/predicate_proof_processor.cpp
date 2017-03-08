@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include "predicate_proof_processor.h"
 #include "axioms.h"
 
@@ -10,18 +11,17 @@ predicate_proof_processor::predicate_proof_processor(std::string const& input, s
 {
     output_filename = output;
 
-    //todo change freopen to FILE variables
-    std::freopen(input.c_str(), "r", stdin);
+    std::ifstream ifs(input.c_str());
 
     std::string line; //title
-    getline(std::cin, line);
+    getline(ifs, line);
 
     process_title(line);
 
     //read all old_lines
-    while (!feof(stdin))
+    while (ifs.good())
     {
-        getline(std::cin, line);
+        getline(ifs, line);
         if (line != "")
         {
             old_lines.push_back(parser(line).parse());
@@ -60,8 +60,6 @@ void predicate_proof_processor::process_title(std::string title)
 
 void predicate_proof_processor::get_last_hypo()
 {
-    std::set<std::string> free_vars_in_last_hypo;
-
     //if initially there were more than 0 hypos
     //  last hypo is the one to use in deduction theorem
     if (old_hypotheses.size() > 0)
@@ -91,40 +89,137 @@ void predicate_proof_processor::concat_vectors(std::vector<std::string> const& s
 
 //proves A->B, where A is selected hypo and B is axiom or hypo
 //A is selected hypothesis, B is expr which is axiom
-std::vector<std::string> get_scheme_ax_lines(std::string A, std::string B)
+std::vector<std::string> predicate_proof_processor::get_scheme_ax_lines(std::string A, std::string B)
 {
-    A = "(" + A + ")";
-    B = "(" + B + ")";
-    return {B,
-            B + "->" + A + "->" + B,
-            A + "->" + B};
+    std::ifstream ifs("predicate_parser/proof_parts/axiom_or_hypo.txt");
+    std::vector<std::string> ret;
+
+    std::string cur_line;
+    while (ifs.good())
+    {
+        std::getline(ifs, cur_line);
+        std::string substituted;
+        for (size_t i = 0; i < cur_line.size(); i++)
+        {
+            if (cur_line[i] == 'A')
+            {
+                substituted += "(" + A + ")";
+            } else if (cur_line[i] == 'B')
+            {
+                substituted += "(" + B + ")";
+            } else
+            {
+                substituted += cur_line[i];
+            }
+        }
+        ret.push_back(substituted);
+    }
+    return ret;
 }
 
 //proves A->A, where A is hypo in deduction theorem
-std::vector<std::string> get_hypo_lines(std::string A)
+std::vector<std::string> predicate_proof_processor::get_hypo_lines(std::string A)
 {
-    A = "(" + A + ")";
-    return {"(" + A + "->" + "(" + A + "->" + A + "))->(" + A + "->(" + A + "->" + A + ")->" + A + ")->" + A + "->" + A,
-            A + "->" + A + "->" + A,
-            "(" + A + "->(" + A + "->" + A + ")->" + A + ")->" + A + "->" + A,
-            A + "->(" + A + "->" + A + ")->" + A,
-            A + "->" + A};
+    std::ifstream ifs("predicate_parser/proof_parts/last_hypo.txt");
+    std::vector<std::string> ret;
+
+    std::string cur_line;
+    while (ifs.good())
+    {
+        std::getline(ifs, cur_line);
+        std::string substituted;
+        for (size_t i = 0; i < cur_line.size(); i++)
+        {
+            if (cur_line[i] == 'A')
+            {
+                substituted += "(" + A + ")";
+            } else
+            {
+                substituted += cur_line[i];
+            }
+        }
+        ret.push_back(substituted);
+    }
+    return ret;
 }
 
 //proves A->C, where we already know, that A->B and A->B->C
-std::vector<std::string> get_mp_lines(std::string A, std::string B, std::string C)
+std::vector<std::string> predicate_proof_processor::get_mp_lines(std::string A, std::string B, std::string C)
 {
-    A = "(" + A + ")";
-    B = "(" + B + ")";
-    C = "(" + C + ")";
-    return {"(" + A + "->" + B + ")->(" + A + "->" + B + "->" + C + ")->(" + A + "->" + C + ")",
-            "(" + A + "->" + B + "->" + C + ")->(" + A + "->" + C + ")",
-            A + "->" + C};
+    std::ifstream ifs("predicate_parser/proof_parts/mp.txt");
+    std::vector<std::string> ret;
+
+    std::string cur_line;
+    while (ifs.good())
+    {
+        std::getline(ifs, cur_line);
+        std::string substituted;
+        for (size_t i = 0; i < cur_line.size(); i++)
+        {
+            if (cur_line[i] == 'A')
+            {
+                substituted += "(" + A + ")";
+            } else if (cur_line[i] == 'B')
+            {
+                substituted += "(" + B + ")";
+            } else if (cur_line[i] == 'C')
+            {
+                substituted += "(" + C + ")";
+            } else
+            {
+                substituted += cur_line[i];
+            }
+        }
+        ret.push_back(substituted);
+    }
+    return ret;
 }
 
-std::vector<std::string> get_second_rule_lines(std::string A, std::string C, std::string D)
+std::vector<std::string>
+predicate_proof_processor::get_predicate_rule_lines(bool first_rule_needed, std::string A, std::string B, std::string C,
+                                                    std::string x)
 {
-    //todo think about it
+    std::ifstream ifs;
+    if (first_rule_needed)
+    {
+        ifs = std::ifstream("predicate_parser/proof_parts/first_predicate_rule.txt");
+    } else
+    {
+        ifs = std::ifstream("predicate_parser/proof_parts/second_predicate_rule.txt");
+    }
+
+
+    std::vector<std::string> ret;
+
+    std::string cur_line;
+    std::getline(ifs, cur_line); //read header
+
+    while (ifs.good())
+    {
+        std::getline(ifs, cur_line);
+        std::string substituted;
+        for (size_t i = 0; i < cur_line.size(); i++)
+        {
+            if (cur_line[i] == 'A')
+            {
+                substituted += "(" + A + ")";
+            } else if (cur_line[i] == 'B')
+            {
+                substituted += "(" + B + ")";
+            } else if (cur_line[i] == 'C')
+            {
+                substituted += "(" + C + ")";
+            } else if (cur_line[i] == 'x')
+            {
+                substituted += x;
+            } else
+            {
+                substituted += cur_line[i];
+            }
+        }
+        ret.push_back(substituted);
+    }
+    return ret;
 }
 
 //function rebuilds the proof and outputs it or error message to output file
@@ -207,31 +302,47 @@ void predicate_proof_processor::process()
             if (it3 != poss_m_p.end())
             {
 //                is_MP((*it3).second.first, (*it3).second.second);
-                get_mp_lines(last_hypo->to_string(),
-                             old_lines[(*it3).second.first].to_string(),
-                             old_lines[(*it3).second.second].to_string());
+                concat_vectors(get_mp_lines(last_hypo->to_string(),
+                                            old_lines[(*it3).second.first].to_string(),
+                                            old_lines[(*it3).second.second].to_string()));
+                //todo delete all gotos, just tmp
                 goto cont;
             }
             ///---------------------------------------------
 
-//            pred_rules_res res = check_if_it_new_pred_rule(proofs[w]);
-//            if (res.res > 0) {
-//                if ((!is_deduction) || (free_vars_in_h_a.find(res.var) == free_vars_in_h_a.end())) {
-//
-//                    if (res.res == 1) {
-//                        is_2_rule(res.finded_no, proofs[w]);
-//                    } else {
-//                        is_3_rule(res.finded_no, proofs[w]);
-//                    }
-//                    goto cont;
-//                } else {
-//                    if (poss_error.empty()) {
+            axioms::pred_rules_res res = axioms::check_if_it_new_pred_rule(old_lines[w].root, all_consequences);
+            if (res.res > 0)
+            {
+                if (this->free_vars_in_last_hypo.find(res.var) == free_vars_in_last_hypo.end())
+                {
+                    if (res.res == 1)
+                    {
+                        std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left;
+                        std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right->right;
+                        std::string x = old_lines[w].root->right->left->str;
+                        concat_vectors(
+                                get_predicate_rule_lines(true, last_hypo->to_string(), predicate_ast(B).to_string(),
+                                                         predicate_ast(C).to_string(), x));
+                    } else
+                    {
+                        std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left->right;
+                        std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right;
+                        std::string x = old_lines[w].root->left->left->str;
+                        concat_vectors(
+                                get_predicate_rule_lines(true, last_hypo->to_string(), predicate_ast(B).to_string(),
+                                                         predicate_ast(C).to_string(), x));
+                    }
+                    goto cont;
+                } //else
+//                {
+//                    if (poss_error.empty())
+//                    {
 //                        poss_error = "используется правило с квантором по переменной ";
 //                        poss_error += res.var + ", входящей свободно в допущение ";
-//                        poss_error += m_to_string(highlighted_assumption) + ".";
+//                        poss_error += last_hypo.to_string() + ".";
 //                    }
 //                }
-//            } else {
+            } //else {
 //                if ((res.res < 0) && (poss_error.empty())) {
 //                    poss_error = string("переменная ") + res.var;
 //                    poss_error += string(" входит свободно в формулу ");

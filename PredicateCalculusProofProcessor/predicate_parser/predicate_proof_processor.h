@@ -44,8 +44,18 @@ public:
 
     std::map<std::string, std::pair<int, int> > poss_m_p;
 
+    std::set<std::string> free_vars_in_last_hypo;
+
+    //todo rename
+    std::map<std::string, int> all_consequences;
+
     //cur pos in proof todo rename
     size_t pos;
+
+    std::vector<std::string> get_scheme_ax_lines(std::string A, std::string B);
+    std::vector<std::string> get_hypo_lines(std::string A);
+    std::vector<std::string> get_mp_lines(std::string A, std::string B, std::string C);
+    std::vector<std::string> get_predicate_rule_lines(bool first_rule_needed, std::string A, std::string B, std::string C, std::string var);
 
     void concat_vectors(std::vector<std::string> const&);
     void process_title(std::string);

@@ -34,6 +34,35 @@ const std::vector<std::string> axioms_mat_str = {
 std::vector<predicate_ast> axioms::axioms_log;
 std::vector<predicate_ast> axioms::axioms_mat;
 
+bool axioms::check_is_var_free_in_expr(std::string& var, std::shared_ptr<predicate_ast::node> c)
+{
+    if (!c)
+    {
+        return 0;
+    }
+    if ((c->token_type == VARIABLE || c->token_type == PREDICATE) && c->str == var)
+    {
+        return 1;
+    }
+    if ((c->token_type == FOR_ALL) || (c->token_type == EXISTS))
+    {
+        //if variable is blocked
+        if (c->left->str == var)
+        {
+            return 0;
+        }
+    }
+    if (axioms::check_is_var_free_in_expr(var, c->left))
+    {
+        return 1;
+    }
+    if (axioms::check_is_var_free_in_expr(var, c->right))
+    {
+        return 1;
+    }
+    return 0;
+}
+
 void axioms::assemble_axioms_if_needed()
 {
     if (axioms::axioms_log.size() == 0)
@@ -110,8 +139,9 @@ bool axioms::recursive_axiom_compare(std::shared_ptr<predicate_ast::node>& expr_
     return true;
 }
 
-axioms::axiom_check_result axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
-                                                     std::shared_ptr<predicate_ast::node>& expr2)
+axioms::axiom_check_result
+axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
+                                  std::shared_ptr<predicate_ast::node>& expr2)
 {
     std::multiset<std::string> can_be_locked;
     std::set<std::string> locked_vars;
@@ -308,6 +338,64 @@ axioms::axiom_check_result axioms::is_an_axiom(predicate_ast ast)
         if (lok_res.finded_ax < 0)
         {
             ret_res = lok_res;
+        }
+    }
+    return ret_res;
+}
+
+axioms::pred_rules_res
+axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, int> all_consequences)
+{
+    if (c->token_type != IMPLICATION)
+    {
+        return {0, -1};
+    }
+
+    pred_rules_res ret_res;
+
+    if (c->right->token_type == FOR_ALL)
+    {
+        std::shared_ptr<predicate_ast::node> v = std::make_shared<predicate_ast::node>(c->left, c->right->right,
+                                                                                       IMPLICATION);
+
+        auto it = all_consequences.find(predicate_ast(v).to_string());
+        if (it != all_consequences.end())
+        {
+            int no = (*it).second;
+
+            pred_rules_res lok_res(1, no, c->right->left->str, c->left);
+            if (check_is_var_free_in_expr(lok_res.var, lok_res.formula))
+            {
+                lok_res.res *= -1;
+            }
+
+            if ((lok_res.res > 0) || (ret_res.res == 0))
+            {
+                ret_res = lok_res;
+            }
+        }
+    }
+
+    if (c->left->token_type == EXISTS)
+    {
+        std::shared_ptr<predicate_ast::node> v = std::make_shared<predicate_ast::node>(c->left->right, c->right,
+                                                                                       IMPLICATION);
+
+        auto it = all_consequences.find(predicate_ast(v).to_string());
+        if (it != all_consequences.end())
+        {
+            int no = (*it).second;
+
+            pred_rules_res lok_res(2, no, c->left->left->str, c->right);
+            if (check_is_var_free_in_expr(lok_res.var, lok_res.formula))
+            {
+                lok_res.res *= -1;
+            }
+
+            if ((lok_res.res > 0) || (ret_res.res == 0))
+            {
+                ret_res = lok_res;
+            }
         }
     }
     return ret_res;
