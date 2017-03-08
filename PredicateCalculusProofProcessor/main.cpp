@@ -81,8 +81,13 @@ int main()
 //    m_expr* ptr = ptr_from_shared(axioms::axioms_log[0].root);
 //    std::cout << "finished" << std::endl;
 
-    predicate_proof_processor p("tests/samples/correct15.in", "tests/output.out");
+    predicate_proof_processor p("tests/input.in", "tests/output.out");
+//    predicate_proof_processor p("tests/samples/correct11.in", "tests/output.out");
     p.process();
+
+//    predicate_ast ast = parser("@a((a+0)=a)").parse();
+//    m_expr* ptr = ptr_from_shared(ast.root);
+//    std::cout << ast.to_string();
 
     return 0;
 }

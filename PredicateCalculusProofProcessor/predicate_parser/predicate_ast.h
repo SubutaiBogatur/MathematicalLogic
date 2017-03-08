@@ -48,8 +48,8 @@ enum token_types
          b
  */
 
-const std::map<token_types, uint8_t> precedence{
-        {EQUALITY,       0},
+const std::map<token_types, unsigned> precedence{
+        {EQUALITY,       2},
         {VARIABLE,       0},
 //        {FUNCTION,       0},
 
@@ -97,7 +97,7 @@ public:
 
     std::string to_string() const;
     bool is_var_free(std::string const& var) const;
-    std::vector<std::string> get_all_free_vars() const;
+    std::set<std::string> get_all_free_vars() const;
     bool equals(predicate_ast const& other) const;
 
     //todo private
@@ -168,7 +168,7 @@ public:
 
     bool is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node) const;
     void tree_walk(std::set<std::string>& list, std::shared_ptr<node> const& cur_node) const;
-    void rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res, uint8_t prev_prec, size_t pos) const;
+    void rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res, int prev_prec, size_t pos) const;
     bool recursive_equals(std::shared_ptr<node> const& this_node, std::shared_ptr<node> const& other_node) const;
 };
 

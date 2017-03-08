@@ -3,6 +3,7 @@
 //
 
 #include <assert.h>
+#include <iostream>
 #include "predicate_ast.h"
 
 predicate_ast::node::node(node_ptr l, node_ptr r, token_types tt) : left(l), right(r), token_type(tt)
@@ -46,19 +47,22 @@ bool predicate_ast::is_var_free_rec(std::string const& var, std::shared_ptr<node
     return free_in_left || free_in_right;
 }
 
+//todo function can be optimized
 //function walks the tree and returns vector with the names of all free vars in ast
-std::vector<std::string> predicate_ast::get_all_free_vars() const
+std::set<std::string> predicate_ast::get_all_free_vars() const
 {
     std::set<std::string> set;
     tree_walk(set, this->root);
 
-    std::vector<std::string> ret;
+//    std::vector<std::string> ret;
+    std::set<std::string> ret;
     auto it = set.begin();
     for (; it != set.end(); it++)
     {
         if (this->is_var_free(*it))
         {
-            ret.push_back(*it);
+//            ret.push_back(*it);
+            ret.insert(*it);
         }
     }
 
@@ -92,18 +96,28 @@ std::string predicate_ast::to_string() const
 }
 
 void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res,
-                                  uint8_t prev_prec, size_t pos) const
+                                  int prev_prec, size_t pos) const
 {
-    bool assoc = (cur_node->token_type == DISJUNCTION) || (cur_node->token_type == CONJUNCTION);
-    bool brack = precedence.at(cur_node->token_type) > prev_prec
-                 || ((precedence.at(cur_node->token_type) == prev_prec) && (pos == assoc));
+    bool brackets = 0;
+    int associativity = 0;
 
-    if ((precedence.at(cur_node->token_type) == prev_prec) && (cur_node->token_type == STROKE) && (pos == 0))
+    if ((cur_node->token_type == DISJUNCTION) || (cur_node->token_type == CONJUNCTION))
     {
-        brack = 0;
+        associativity = 1;
     }
 
-    if (brack)
+//    std::cout << precedence.find(cur_node->token_type)->second << std::endl;
+    if ((precedence.find(cur_node->token_type)->second > prev_prec) ||
+        ((precedence.find(cur_node->token_type)->second == prev_prec) && (pos == associativity)))
+    {
+        brackets = 1;
+    }
+    if ((precedence.find(cur_node->token_type)->second == prev_prec) && (pos == 0) && (cur_node->token_type == STROKE))
+    {
+        brackets = 0;
+    }
+
+    if (brackets)
     {
         res.push_back('(');
     }
@@ -139,7 +153,7 @@ void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::st
         rec_to_string(cur_node->right, res, precedence.at(cur_node->token_type), 1);
     }
 
-    if (brack)
+    if (brackets)
     {
         res.push_back(')');
     }

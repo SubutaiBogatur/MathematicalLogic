@@ -110,8 +110,8 @@ bool axioms::recursive_axiom_compare(std::shared_ptr<predicate_ast::node>& expr_
     return true;
 }
 
-bool axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
-                                       std::shared_ptr<predicate_ast::node>& expr2)
+axioms::axiom_check_result axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
+                                                     std::shared_ptr<predicate_ast::node>& expr2)
 {
     std::multiset<std::string> can_be_locked;
     std::set<std::string> locked_vars;
@@ -120,9 +120,13 @@ bool axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predica
     bool res = is_result_of_sub_rec(var, expr1, expr2, locked_vars, can_be_locked, new_finded_expr);
     if (res == 0)
     {
-        return false;
+        return axiom_check_result(0);
     }
-    return check_is_it_free_for_substitution(new_finded_expr, locked_vars);
+    if (check_is_it_free_for_substitution(new_finded_expr, locked_vars))
+    {
+        return axiom_check_result(1);
+    }
+    return axiom_check_result(-1, new_finded_expr, expr1, var);
 }
 
 bool axioms::check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::node>& expr,
@@ -225,7 +229,7 @@ bool axioms::is_result_of_sub_rec(std::string& var, std::shared_ptr<predicate_as
 }
 
 
-bool axioms::is_11_axiom(predicate_ast ast)
+axioms::axiom_check_result axioms::is_11_axiom(predicate_ast ast)
 {
     std::shared_ptr<predicate_ast::node>& c = ast.root;
     if ((!c) || (c->token_type != IMPLICATION) || (c->left->token_type != FOR_ALL))
@@ -237,11 +241,12 @@ bool axioms::is_11_axiom(predicate_ast ast)
     std::shared_ptr<predicate_ast::node> expr1 = c->left->right;
     std::shared_ptr<predicate_ast::node> expr2 = c->right;
 
-    bool res = is_result_of_substitution(var, expr1, expr2);
+    axiom_check_result res = is_result_of_substitution(var, expr1, expr2);
+    res.finded_ax *= 10;
     return res;
 }
 
-bool axioms::is_12_axiom(predicate_ast ast)
+axioms::axiom_check_result axioms::is_12_axiom(predicate_ast ast)
 {
     std::shared_ptr<predicate_ast::node> c = ast.root;
     if ((!c) || (c->token_type != IMPLICATION) || (c->right->token_type != EXISTS))
@@ -252,11 +257,12 @@ bool axioms::is_12_axiom(predicate_ast ast)
     std::shared_ptr<predicate_ast::node> c1 = c->right->right;
     std::shared_ptr<predicate_ast::node> c2 = c->left;
 
-    bool res = is_result_of_substitution(var, c1, c2);
+    axiom_check_result res = is_result_of_substitution(var, c1, c2);
+    res.finded_ax *= 11;
     return res;
 }
 
-int8_t axioms::is_an_axiom(predicate_ast ast)
+axioms::axiom_check_result axioms::is_an_axiom(predicate_ast ast)
 {
     assert (axioms_mat.size() == 8);
     //firstly check if mathematical axiom:
@@ -265,7 +271,7 @@ int8_t axioms::is_an_axiom(predicate_ast ast)
     {
         if (str == axioms::axioms_mat[i].to_string())
         {
-            return static_cast<int8_t>(static_cast<int8_t >(i + 1) * (-1)); //explicit casts to suppress warnings
+            return static_cast<int8_t>(static_cast<int8_t >(i + 12)); //explicit casts to suppress warnings
         }
     }
 
@@ -276,19 +282,33 @@ int8_t axioms::is_an_axiom(predicate_ast ast)
         std::map<char, std::string> map; //every new cycle it dies
         if (recursive_axiom_compare(ast.root, axioms_log[i].root, map))
         {
-            return static_cast<int8_t>(static_cast<int8_t >(i + 1));
+            return static_cast<int8_t>(static_cast<int8_t >(i));
         }
     }
 
-    if (is_11_axiom(ast))
+    axiom_check_result ret_res, lok_res;
+    lok_res = is_11_axiom(ast);
+    if (lok_res.finded_ax > 0)
     {
-        return 11;
+        return lok_res;
+    } else
+    {
+        if (lok_res.finded_ax < 0)
+        {
+            ret_res = lok_res;
+        }
     }
 
-    if (is_12_axiom(ast))
+    lok_res = is_12_axiom(ast);
+    if (lok_res.finded_ax > 0)
     {
-        return 12;
+        return lok_res;
+    } else
+    {
+        if (lok_res.finded_ax < 0)
+        {
+            ret_res = lok_res;
+        }
     }
-
-    return 0;
+    return ret_res;
 }

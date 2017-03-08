@@ -28,11 +28,28 @@ public:
     //todo private after debugging
 public:
     std::string output_filename;
-    std::vector<predicate_ast> hypotheses;
-    std::vector<predicate_ast> lines;
-    std::experimental::optional<predicate_ast> to_prove; //optional because of lack of empty constructor
+    std::vector<predicate_ast> old_hypotheses;
+    std::vector<predicate_ast> old_lines;
+    std::experimental::optional<predicate_ast> old_to_prove; //optional because of lack of empty constructor
 
+    std::vector<predicate_ast> new_hypotheses;
+    std::vector<predicate_ast> new_lines;
+    std::experimental::optional<predicate_ast> new_to_prove;
+
+    //hypothesis to use in deduction theorem
+    std::experimental::optional<predicate_ast> last_hypo;
+
+    //{expr.to_string(), line_number}
+    std::map<std::string, int> old_hypotheses_map;
+
+    std::map<std::string, std::pair<int, int> > poss_m_p;
+
+    //cur pos in proof todo rename
+    size_t pos;
+
+    void concat_vectors(std::vector<std::string> const&);
     void process_title(std::string);
+    void get_last_hypo();
 };
 
 
