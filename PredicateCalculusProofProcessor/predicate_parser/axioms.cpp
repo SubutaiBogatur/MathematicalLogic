@@ -403,16 +403,43 @@ axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::m
     return ret_res;
 }
 
+//todo debugging only, delete
+struct m_expr
+{
+    m_expr *left;
+    m_expr *right;
+
+    std::string str;
+    token_types tt;
+};
+
+inline m_expr *ptr_from_shared(std::shared_ptr<predicate_ast::node> sh_ptr)
+{
+    m_expr *ptr = new m_expr();
+    ptr->left = sh_ptr->left == NULL ? 0 : ptr_from_shared(sh_ptr->left);
+    ptr->right = sh_ptr->right == NULL ? 0 : ptr_from_shared(sh_ptr->right);
+    ptr->tt = sh_ptr->token_type;
+    ptr->str = sh_ptr->str;
+    return ptr;
+}
+
 //substitutes variable
 std::shared_ptr<predicate_ast::node>
 substitute(std::shared_ptr<predicate_ast::node> c, std::string old_val, std::string new_val)
 {
+    m_expr* m = ptr_from_shared(c);
+
     if (c == 0)
     {
         return NULL;
     }
 
     std::shared_ptr<predicate_ast::node> ret = std::make_shared<predicate_ast::node>(c->left, c->right, c->token_type, c->str);
+
+    if((c->token_type == FOR_ALL || c->token_type == EXISTS) && c->left->str == old_val)
+    {
+        return ret; //all lower is blocked
+    }
 
     if (c->token_type == VARIABLE && c->str == old_val)
     {
@@ -441,8 +468,8 @@ bool axioms::is_9_math_axiom(predicate_ast ast)
             std::string to_comp = ast.to_string();
 
             std::string var = ast.root->left->right->left->str;
-            std::shared_ptr<predicate_ast::node> subst_0 = ast.root->left->left;
-            std::shared_ptr<predicate_ast::node> subst_shtr = ast.root->left->right->right->right;
+            std::shared_ptr<predicate_ast::node> subst_0 = ast.root->right;
+            std::shared_ptr<predicate_ast::node> subst_shtr = ast.root->right;
 
             std::string str_subst_0 = predicate_ast(substitute(subst_0, var, "0")).to_string();
             std::string str_subst_shtr = predicate_ast(substitute(subst_shtr, var, var + "'")).to_string();

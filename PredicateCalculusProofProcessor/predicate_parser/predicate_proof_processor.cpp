@@ -221,18 +221,6 @@ predicate_proof_processor::get_predicate_rule_lines(bool first_rule_needed, std:
     return ret;
 }
 
-void predicate_proof_processor::not_proved(std::string error)
-{
-    std::cout << "Вывод некорректен начиная с формулы номер ";
-    std::cout << pos + 1;
-
-    if (!error.empty())
-    {
-        std::cout << ": " << error;
-    }
-    return;
-}
-
 //function rebuilds the proof and outputs it or error message to output file
 void predicate_proof_processor::process()
 {
@@ -265,6 +253,11 @@ void predicate_proof_processor::process()
         pos = w;
 //        new_proove(); //this code does nothing?????
         //todo tmp
+        if(w == old_lines.size() - 1)
+        {
+            std::cerr << "debug\n";
+        }
+
 //        std::cout << axioms::is_9_math_axiom(old_lines[w]) << std::endl;
 
         //just convert line to string
@@ -317,7 +310,7 @@ void predicate_proof_processor::process()
 //                is_MP((*it3).second.first, (*it3).second.second);
                 concat_vectors(get_mp_lines(last_hypo->to_string(),
                                             old_lines[(*it3).second.first].to_string(),
-                                            old_lines[(*it3).second.second].to_string()));
+                                            predicate_ast(old_lines[(*it3).second.second].root->right).to_string()));
                 //todo delete all gotos, just tmp
                 goto cont;
             }
@@ -342,7 +335,7 @@ void predicate_proof_processor::process()
                         std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right;
                         std::string x = old_lines[w].root->left->left->str;
                         concat_vectors(
-                                get_predicate_rule_lines(true, last_hypo->to_string(), predicate_ast(B).to_string(),
+                                get_predicate_rule_lines(false, last_hypo->to_string(), predicate_ast(B).to_string(),
                                                          predicate_ast(C).to_string(), x));
                     }
                     goto cont;
@@ -377,7 +370,7 @@ void predicate_proof_processor::process()
             ///-----------------------
 
             //else not proved statement, sophism must be punished
-            not_proved(poss_error);
+            print_output(true, poss_error);
             return;
         }
         cont:
@@ -399,20 +392,51 @@ void predicate_proof_processor::process()
         }
 
         it2 = poss_poss_m_p.find(cur_str);
-        while (it2 != poss_poss_m_p.end()) {
-            poss_m_p.insert({(*it2).second.first, {w, (*it2).second.second} });
+        while (it2 != poss_poss_m_p.end())
+        {
+            poss_m_p.insert({(*it2).second.first, {w, (*it2).second.second}});
 
             poss_poss_m_p.erase(it2);
             it2 = poss_poss_m_p.find(cur_str);
         }
-        existing_proofs.insert({cur_str, w});
-        ;
+        existing_proofs.insert({cur_str, w});;
     }
+    return;
+}
 
-    //output, todo another function
+void predicate_proof_processor::print_output(bool error_happened, std::string error)
+{
     std::freopen("tests/output.txt", "w", stdout);
-    for (size_t i = 0; i < new_lines.size(); i++)
+    std::ios::sync_with_stdio(false);
+
+    if(error_happened)
     {
-        std::cout << new_lines[i].to_string() << std::endl;
+        std::cout << "Вывод некорректен начиная с формулы номер ";
+        std::cout << pos + 1;
+
+        if (!error.empty())
+        {
+            std::cout << ": " << error;
+        }
+        return;
+    }
+    else {
+        //print header
+        bool b = 0;
+        for (size_t i = 0; i < new_hypotheses.size(); i++)
+        {
+            if (b)
+            {
+                std::cout << ",";
+            }
+            b = 1;
+            std::cout << new_hypotheses[i].to_string();
+        }
+        std::cout << "|-" << new_to_prove->to_string() << "\n";
+        //print lines
+        for (size_t i = 0; i < new_lines.size(); i++)
+        {
+            std::cout << new_lines[i].to_string() << std::endl;
+        }
     }
 }

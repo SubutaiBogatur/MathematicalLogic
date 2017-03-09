@@ -65,6 +65,7 @@ public:
     void process_title(std::string);
     void get_last_hypo();
     void not_proved(std::string error);
+    void print_output(bool error_happened, std::string error);
 };
 
 
