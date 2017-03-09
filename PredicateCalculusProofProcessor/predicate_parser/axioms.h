@@ -35,7 +35,6 @@ struct axioms
         }
     };
 
-    //todo rename, refactor
     struct pred_rules_res
     {
         int res, finded_no;

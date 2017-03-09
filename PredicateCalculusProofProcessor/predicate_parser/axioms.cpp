@@ -30,8 +30,6 @@ const std::vector<std::string> axioms_mat_str = {
         "a*b'=a*b+a"
 };
 
-const std::string math_axiom_9 = "(A&@x(C->B))->C";
-
 //defining static fields
 std::vector<predicate_ast> axioms::axioms_log;
 std::vector<predicate_ast> axioms::axioms_mat;
@@ -109,7 +107,7 @@ bool axioms::recursive_axiom_compare(std::shared_ptr<predicate_ast::node>& expr_
         return true;
     }
 
-    if (ax_nod->equals(*expr_nod) == false)
+    if (!ax_nod->equals(*expr_nod))
     {
         return false;
     }
@@ -184,7 +182,6 @@ bool axioms::check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::no
     return 1;
 }
 
-//todo should be checked more and mb simplified
 bool axioms::is_result_of_sub_rec(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
                                   std::shared_ptr<predicate_ast::node>& expr2,
                                   std::set<std::string>& locked_vars,
@@ -403,40 +400,20 @@ axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::m
     return ret_res;
 }
 
-//todo debugging only, delete
-struct m_expr
-{
-    m_expr *left;
-    m_expr *right;
-
-    std::string str;
-    token_types tt;
-};
-
-inline m_expr *ptr_from_shared(std::shared_ptr<predicate_ast::node> sh_ptr)
-{
-    m_expr *ptr = new m_expr();
-    ptr->left = sh_ptr->left == NULL ? 0 : ptr_from_shared(sh_ptr->left);
-    ptr->right = sh_ptr->right == NULL ? 0 : ptr_from_shared(sh_ptr->right);
-    ptr->tt = sh_ptr->token_type;
-    ptr->str = sh_ptr->str;
-    return ptr;
-}
-
 //substitutes variable
 std::shared_ptr<predicate_ast::node>
 substitute(std::shared_ptr<predicate_ast::node> c, std::string old_val, std::string new_val)
 {
-    m_expr* m = ptr_from_shared(c);
 
     if (c == 0)
     {
         return NULL;
     }
 
-    std::shared_ptr<predicate_ast::node> ret = std::make_shared<predicate_ast::node>(c->left, c->right, c->token_type, c->str);
+    std::shared_ptr<predicate_ast::node> ret = std::make_shared<predicate_ast::node>(c->left, c->right, c->token_type,
+                                                                                     c->str);
 
-    if((c->token_type == FOR_ALL || c->token_type == EXISTS) && c->left->str == old_val)
+    if ((c->token_type == FOR_ALL || c->token_type == EXISTS) && c->left->str == old_val)
     {
         return ret; //all lower is blocked
     }

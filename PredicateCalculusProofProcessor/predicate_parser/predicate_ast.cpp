@@ -16,7 +16,6 @@ bool predicate_ast::is_var_free(std::string const& var) const
     return is_var_free_rec(var, this->root);
 }
 
-//todo mb test this function on expressions file
 bool predicate_ast::is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node) const
 {
     bool free_in_left = false;
@@ -96,7 +95,7 @@ std::string predicate_ast::to_string() const
 }
 
 void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res,
-                                  int prev_prec, size_t pos) const
+                                  uint8_t prev_prec, size_t pos) const
 {
     bool brackets = 0;
     int associativity = 0;

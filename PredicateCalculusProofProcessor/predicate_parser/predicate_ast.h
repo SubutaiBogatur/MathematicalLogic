@@ -168,7 +168,7 @@ public:
 
     bool is_var_free_rec(std::string const& var, std::shared_ptr<node> const& cur_node) const;
     void tree_walk(std::set<std::string>& list, std::shared_ptr<node> const& cur_node) const;
-    void rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res, int prev_prec, size_t pos) const;
+    void rec_to_string(std::shared_ptr<node> const& cur_node, std::string& res, uint8_t prev_prec, size_t pos) const;
     bool recursive_equals(std::shared_ptr<node> const& this_node, std::shared_ptr<node> const& other_node) const;
 };
 

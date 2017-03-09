@@ -46,13 +46,12 @@ public:
 
     std::set<std::string> free_vars_in_last_hypo;
 
-    //todo rename
+
     std::map<std::string, int> all_consequences;
-    //todo rename
+
     std::map<std::string, int> existing_proofs;
     std::multimap<std::string, std::pair<std::string, int> > poss_poss_m_p;
 
-    //cur pos in proof todo rename
     size_t pos;
 
     std::vector<std::string> get_scheme_ax_lines(std::string A, std::string B);
@@ -64,7 +63,6 @@ public:
     void concat_vectors(std::vector<std::string> const&);
     void process_title(std::string);
     void get_last_hypo();
-    void not_proved(std::string error);
     void print_output(bool error_happened, std::string error);
 };
 

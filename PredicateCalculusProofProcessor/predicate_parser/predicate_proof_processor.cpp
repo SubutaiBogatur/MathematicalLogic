@@ -226,12 +226,6 @@ void predicate_proof_processor::process()
 {
     axioms::assemble_axioms_if_needed();
 
-//    for (size_t i = 0; i < old_lines.size(); i++)
-//    {
-//        axioms::axiom_check_result res = axioms::is_an_axiom(old_lines[i]);
-//        std::cout << "\n";
-//    }
-
     //move hypotheses to new proof
     for (int w = 0; w < (int) old_hypotheses.size() - 1; w++)
     {
@@ -249,16 +243,7 @@ void predicate_proof_processor::process()
 
     for (size_t w = 0; w < old_lines.size(); w++)
     {
-
         pos = w;
-//        new_proove(); //this code does nothing?????
-        //todo tmp
-        if(w == old_lines.size() - 1)
-        {
-            std::cerr << "debug\n";
-        }
-
-//        std::cout << axioms::is_9_math_axiom(old_lines[w]) << std::endl;
 
         //just convert line to string
         std::string cur_str = old_lines[w].to_string();
@@ -268,8 +253,6 @@ void predicate_proof_processor::process()
 
         {
             std::string poss_error;
-
-
             axioms::axiom_check_result c = axioms::is_an_axiom(old_lines[w]);
 
             if (c.finded_ax >= 0)
@@ -279,101 +262,101 @@ void predicate_proof_processor::process()
                     //add new lines to proof
                     concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
                 }
-                goto cont;
-            }
-            if (c.finded_ax < -1)
+            } else if (c.finded_ax < -1)
             {
                 poss_error = "терм " + predicate_ast(c.term).to_string() + " не свободен для подстановки в формулу ";
                 poss_error += predicate_ast(c.formula).to_string() + " вместо переменной ";
                 poss_error += c.var + ".";
-            }
-
-            ///---------------------------------------------
-            it = old_hypotheses_map.find(cur_str);
-            if (it != old_hypotheses_map.end())
-            {
-                if ((*it).second == static_cast<int>(old_hypotheses.size()))
-                {
-                    concat_vectors(get_hypo_lines(last_hypo->to_string()));
-                } else
-                {
-                    concat_vectors(get_scheme_ax_lines(last_hypo->to_string(), old_lines[w].to_string()));
-                }
-                goto cont;
-            }
-            ///---------------------------------------------
-            std::map<std::string, std::pair<int, int> >::iterator it3;
-
-            it3 = poss_m_p.find(cur_str);
-            if (it3 != poss_m_p.end())
-            {
-//                is_MP((*it3).second.first, (*it3).second.second);
-                concat_vectors(get_mp_lines(last_hypo->to_string(),
-                                            old_lines[(*it3).second.first].to_string(),
-                                            predicate_ast(old_lines[(*it3).second.second].root->right).to_string()));
-                //todo delete all gotos, just tmp
-                goto cont;
-            }
-            ///---------------------------------------------
-
-            axioms::pred_rules_res res = axioms::check_if_it_new_pred_rule(old_lines[w].root, all_consequences);
-            if (res.res > 0)
-            {
-                if (this->free_vars_in_last_hypo.find(res.var) == free_vars_in_last_hypo.end())
-                {
-                    if (res.res == 1)
-                    {
-                        std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left;
-                        std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right->right;
-                        std::string x = old_lines[w].root->right->left->str;
-                        concat_vectors(
-                                get_predicate_rule_lines(true, last_hypo->to_string(), predicate_ast(B).to_string(),
-                                                         predicate_ast(C).to_string(), x));
-                    } else
-                    {
-                        std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left->right;
-                        std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right;
-                        std::string x = old_lines[w].root->left->left->str;
-                        concat_vectors(
-                                get_predicate_rule_lines(false, last_hypo->to_string(), predicate_ast(B).to_string(),
-                                                         predicate_ast(C).to_string(), x));
-                    }
-                    goto cont;
-                } else
-                {
-                    if (poss_error.empty())
-                    {
-                        poss_error = "используется правило с квантором по переменной ";
-                        poss_error += res.var + ", входящей свободно в допущение ";
-                        poss_error += last_hypo->to_string() + ".";
-                    }
-                }
             } else
             {
-                if ((res.res < 0) && (poss_error.empty()))
+
+                ///---------------------------------------------
+                it = old_hypotheses_map.find(cur_str);
+                if (it != old_hypotheses_map.end())
                 {
-                    poss_error = std::string("переменная ") + res.var;
-                    poss_error += std::string(" входит свободно в формулу ");
-                    poss_error += predicate_ast(res.formula).to_string() + ".";
-                }
-            }
+                    if ((*it).second == static_cast<int>(old_hypotheses.size()))
+                    {
+                        concat_vectors(get_hypo_lines(last_hypo->to_string()));
+                    } else
+                    {
+                        concat_vectors(get_scheme_ax_lines(last_hypo->to_string(), old_lines[w].to_string()));
+                    }
+                } else
+                {
+                    ///---------------------------------------------
+                    std::map<std::string, std::pair<int, int> >::iterator it3;
+
+                    it3 = poss_m_p.find(cur_str);
+                    if (it3 != poss_m_p.end())
+                    {
+                        concat_vectors(get_mp_lines(last_hypo->to_string(),
+                                                    old_lines[(*it3).second.first].to_string(),
+                                                    predicate_ast(
+                                                            old_lines[(*it3).second.second].root->right).to_string()));
+                    } else
+                    {
+                        ///---------------------------------------------
+
+                        axioms::pred_rules_res res = axioms::check_if_it_new_pred_rule(old_lines[w].root,
+                                                                                       all_consequences);
+                        if (res.res > 0)
+                        {
+                            if (this->free_vars_in_last_hypo.find(res.var) == free_vars_in_last_hypo.end())
+                            {
+                                if (res.res == 1)
+                                {
+                                    std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left;
+                                    std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right->right;
+                                    std::string x = old_lines[w].root->right->left->str;
+                                    concat_vectors(
+                                            get_predicate_rule_lines(true, last_hypo->to_string(),
+                                                                     predicate_ast(B).to_string(),
+                                                                     predicate_ast(C).to_string(), x));
+                                } else
+                                {
+                                    std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left->right;
+                                    std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right;
+                                    std::string x = old_lines[w].root->left->left->str;
+                                    concat_vectors(
+                                            get_predicate_rule_lines(false, last_hypo->to_string(),
+                                                                     predicate_ast(B).to_string(),
+                                                                     predicate_ast(C).to_string(), x));
+                                }
+                            } else
+                            {
+                                if (poss_error.empty())
+                                {
+                                    poss_error = "используется правило с квантором по переменной ";
+                                    poss_error += res.var + ", входящей свободно в допущение ";
+                                    poss_error += last_hypo->to_string() + ".";
+                                }
+                            }
+                        } else
+                        {
+                            if ((res.res < 0) && (poss_error.empty()))
+                            {
+                                poss_error = std::string("переменная ") + res.var;
+                                poss_error += std::string(" входит свободно в формулу ");
+                                poss_error += predicate_ast(res.formula).to_string() + ".";
+                            }
+
 //            ///---------------------------------------------
 
-            //todo move to different function, that checks if 9'th mathematical axiom
-            if (axioms::is_9_math_axiom(old_lines[w]))
-            {
-                std::cerr << "is induction axiom\n";
-                concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
-                goto cont;
+                            if (axioms::is_9_math_axiom(old_lines[w]))
+                            {
+                                std::cerr << "is induction axiom\n";
+                                concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
+                            } else
+                            {
+                                //else not proved statement, sophism must be punished
+                                print_output(true, poss_error);
+                                return;
+                            }
+                        }
+                    }
+                }
             }
-
-            ///-----------------------
-
-            //else not proved statement, sophism must be punished
-            print_output(true, poss_error);
-            return;
         }
-        cont:
 
         if (old_lines[w].root->token_type == IMPLICATION)
         {
@@ -401,6 +384,8 @@ void predicate_proof_processor::process()
         }
         existing_proofs.insert({cur_str, w});;
     }
+
+    print_output(false, "");
     return;
 }
 
@@ -409,7 +394,7 @@ void predicate_proof_processor::print_output(bool error_happened, std::string er
     std::freopen("tests/output.txt", "w", stdout);
     std::ios::sync_with_stdio(false);
 
-    if(error_happened)
+    if (error_happened)
     {
         std::cout << "Вывод некорректен начиная с формулы номер ";
         std::cout << pos + 1;
@@ -419,8 +404,8 @@ void predicate_proof_processor::print_output(bool error_happened, std::string er
             std::cout << ": " << error;
         }
         return;
-    }
-    else {
+    } else
+    {
         //print header
         bool b = 0;
         for (size_t i = 0; i < new_hypotheses.size(); i++)
