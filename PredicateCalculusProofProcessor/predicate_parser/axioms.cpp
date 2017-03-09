@@ -30,6 +30,8 @@ const std::vector<std::string> axioms_mat_str = {
         "a*b'=a*b+a"
 };
 
+const std::string math_axiom_9 = "(A&@x(C->B))->C";
+
 //defining static fields
 std::vector<predicate_ast> axioms::axioms_log;
 std::vector<predicate_ast> axioms::axioms_mat;
@@ -399,4 +401,59 @@ axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::m
         }
     }
     return ret_res;
+}
+
+//substitutes variable
+std::shared_ptr<predicate_ast::node>
+substitute(std::shared_ptr<predicate_ast::node> c, std::string old_val, std::string new_val)
+{
+    if (c == 0)
+    {
+        return NULL;
+    }
+
+    std::shared_ptr<predicate_ast::node> ret = std::make_shared<predicate_ast::node>(c->left, c->right, c->token_type, c->str);
+
+    if (c->token_type == VARIABLE && c->str == old_val)
+    {
+        ret->str = new_val;
+        return ret;
+    }
+
+    if (c->left != NULL)
+    {
+        ret->left = substitute(c->left, old_val, new_val);
+    }
+    if (c->right != NULL)
+    {
+        ret->right = substitute(c->right, old_val, new_val);
+    }
+    return ret;
+}
+
+bool axioms::is_9_math_axiom(predicate_ast ast)
+{
+    if (ast.root->token_type == IMPLICATION)
+    {
+        if (ast.root->left->token_type == CONJUNCTION
+            && ast.root->left->right->token_type == FOR_ALL)
+        {
+            std::string to_comp = ast.to_string();
+
+            std::string var = ast.root->left->right->left->str;
+            std::shared_ptr<predicate_ast::node> subst_0 = ast.root->left->left;
+            std::shared_ptr<predicate_ast::node> subst_shtr = ast.root->left->right->right->right;
+
+            std::string str_subst_0 = predicate_ast(substitute(subst_0, var, "0")).to_string();
+            std::string str_subst_shtr = predicate_ast(substitute(subst_shtr, var, var + "'")).to_string();
+            std::string str_no_subst = predicate_ast(ast.root->right).to_string();
+
+            std::string ax = "((" + str_subst_0 + ")" + "&" + "@" + var + "((" + str_no_subst + ")->" + str_subst_shtr +
+                             "))->" + str_no_subst;
+            ax = predicate_ast(parser(ax).parse()).to_string(); //just to ensure, that everything is okk
+
+            return ax == to_comp;
+        }
+    }
+    return false;
 }

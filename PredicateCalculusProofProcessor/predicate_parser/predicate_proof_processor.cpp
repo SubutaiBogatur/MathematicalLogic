@@ -32,7 +32,6 @@ predicate_proof_processor::predicate_proof_processor(std::string const& input, s
 //fills old_hypotheses and old_to_prove
 void predicate_proof_processor::process_title(std::string title)
 {
-    size_t initial_title_size = title.length();
     size_t i = 0;
 
     std::string all_hypos;
@@ -243,7 +242,7 @@ void predicate_proof_processor::process()
     get_last_hypo();
 
     //supply quick access to line number from ast
-    for (int i = 0; i < old_hypotheses.size(); i++)
+    for (size_t i = 0; i < old_hypotheses.size(); i++)
     {
         old_hypotheses_map.insert({old_hypotheses[i].to_string(), i + 1});
     }
@@ -253,6 +252,8 @@ void predicate_proof_processor::process()
 
         pos = w;
 //        new_proove(); //this code does nothing?????
+        //todo tmp
+//        std::cout << axioms::is_9_math_axiom(old_lines[w]) << std::endl;
 
         //just convert line to string
         std::string cur_str = old_lines[w].to_string();
@@ -286,7 +287,7 @@ void predicate_proof_processor::process()
             it = old_hypotheses_map.find(cur_str);
             if (it != old_hypotheses_map.end())
             {
-                if ((*it).second == old_hypotheses.size())
+                if ((*it).second == static_cast<int>(old_hypotheses.size()))
                 {
                     concat_vectors(get_hypo_lines(last_hypo->to_string()));
                 } else
@@ -333,48 +334,32 @@ void predicate_proof_processor::process()
                                                          predicate_ast(C).to_string(), x));
                     }
                     goto cont;
-                } //else
-//                {
-//                    if (poss_error.empty())
-//                    {
-//                        poss_error = "используется правило с квантором по переменной ";
-//                        poss_error += res.var + ", входящей свободно в допущение ";
-//                        poss_error += last_hypo.to_string() + ".";
-//                    }
-//                }
-            } //else {
-//                if ((res.res < 0) && (poss_error.empty())) {
-//                    poss_error = string("переменная ") + res.var;
-//                    poss_error += string(" входит свободно в формулу ");
-//                    poss_error += m_to_string(res.formula) + ".";
-//                }
-//            }
+                } else
+                {
+                    if (poss_error.empty())
+                    {
+                        poss_error = "используется правило с квантором по переменной ";
+                        poss_error += res.var + ", входящей свободно в допущение ";
+                        poss_error += last_hypo->to_string() + ".";
+                    }
+                }
+            } else
+            {
+                if ((res.res < 0) && (poss_error.empty()))
+                {
+                    poss_error = std::string("переменная ") + res.var;
+                    poss_error += std::string(" входит свободно в формулу ");
+                    poss_error += predicate_ast(res.formula).to_string() + ".";
+                }
+            }
 //            ///---------------------------------------------
-//
-//            if (proofs[w]->val == CONSEQUENCE) {
-//                expr_sp c = proofs[w], v, ax;
-//                string var;
-//
-//                if ((c->a[0]->val == CONJUNCTION) && (c->a[0]->a[1]->val == FOR_ALL)) {
-//                    v = c->a[1];
-//                    ax = to_expr("(A&@x(C->B))->C");
-//                    var = c->a[0]->a[1]->a[0]->val;
-//
-//                    map<string, expr_sp> disp_1 = {{var, to_therm("0")}};
-//                    map<string, expr_sp> disp_2 = {{var, to_therm(var + "'")}};
-//
-//                    map<string, expr_sp> disp = { {"A", substitute(v, disp_1)},
-//                                                  {"B", substitute(v, disp_2)},
-//                                                  {"C", v},
-//                                                  {"x", to_therm(var)} };
-//                    expr_sp res = substitute(ax, disp);
-//
-//                    if (m_to_string(res) == m_to_string(c)) {
-//                        is_scheme_of_ax(20, c);
-//                        goto cont;
-//                    }
-//                }
-//            }
+
+            //todo move to different function, that checks if 9'th mathematical axiom
+            if(axioms::is_9_math_axiom(old_lines[w]))
+            {
+                std::cerr << "is induction axiom\n";
+                goto cont;
+            }
 //
 //            ///-----------------------
 //
