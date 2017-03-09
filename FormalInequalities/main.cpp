@@ -13,7 +13,7 @@ int main()
         prove_less(a, b, "tests/output.txt");
     } else
     {
-//        prove_more(a, b, "tests/output.txt");
+        prove_greater(a, b, "tests/output.txt");
     }
     return 0;
 }
