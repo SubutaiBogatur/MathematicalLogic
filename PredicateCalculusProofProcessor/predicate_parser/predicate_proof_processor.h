@@ -48,6 +48,9 @@ public:
 
     //todo rename
     std::map<std::string, int> all_consequences;
+    //todo rename
+    std::map<std::string, int> existing_proofs;
+    std::multimap<std::string, std::pair<std::string, int> > poss_poss_m_p;
 
     //cur pos in proof todo rename
     size_t pos;
@@ -55,11 +58,13 @@ public:
     std::vector<std::string> get_scheme_ax_lines(std::string A, std::string B);
     std::vector<std::string> get_hypo_lines(std::string A);
     std::vector<std::string> get_mp_lines(std::string A, std::string B, std::string C);
-    std::vector<std::string> get_predicate_rule_lines(bool first_rule_needed, std::string A, std::string B, std::string C, std::string var);
+    std::vector<std::string>
+    get_predicate_rule_lines(bool first_rule_needed, std::string A, std::string B, std::string C, std::string var);
 
     void concat_vectors(std::vector<std::string> const&);
     void process_title(std::string);
     void get_last_hypo();
+    void not_proved(std::string error);
 };
 
 

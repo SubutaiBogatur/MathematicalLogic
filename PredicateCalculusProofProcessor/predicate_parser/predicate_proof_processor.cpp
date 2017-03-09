@@ -221,6 +221,18 @@ predicate_proof_processor::get_predicate_rule_lines(bool first_rule_needed, std:
     return ret;
 }
 
+void predicate_proof_processor::not_proved(std::string error)
+{
+    std::cout << "Вывод некорректен начиная с формулы номер ";
+    std::cout << pos + 1;
+
+    if (!error.empty())
+    {
+        std::cout << ": " << error;
+    }
+    return;
+}
+
 //function rebuilds the proof and outputs it or error message to output file
 void predicate_proof_processor::process()
 {
@@ -355,52 +367,52 @@ void predicate_proof_processor::process()
 //            ///---------------------------------------------
 
             //todo move to different function, that checks if 9'th mathematical axiom
-            if(axioms::is_9_math_axiom(old_lines[w]))
+            if (axioms::is_9_math_axiom(old_lines[w]))
             {
                 std::cerr << "is induction axiom\n";
+                concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
                 goto cont;
             }
-//
-//            ///-----------------------
-//
-//            if (is_not_proved(poss_error)) {
-//                return;
-//            }
+
+            ///-----------------------
+
+            //else not proved statement, sophism must be punished
+            not_proved(poss_error);
+            return;
         }
         cont:
-//
-//        if (proofs[w]->val == CONSEQUENCE) {
-//            all_consequences[m_to_string(proofs[w])] = w;
-//
-//            string left_child = m_to_string(proofs[w]->a[0]);
-//
-//            it = existing_proofs.find(left_child);
-//            if (it != existing_proofs.end()) {
-//                poss_m_p[ m_to_string(proofs[w]->a[1]) ] = {(*it).second, w};
-//            } else {
-//                poss_poss_m_p.insert({left_child,
-//                                      {m_to_string(proofs[w]->a[1]), w}
-//                                     } );
-//            }
-//        }
-//
-//        it2 = poss_poss_m_p.find(str);
-//        while (it2 != poss_poss_m_p.end()) {
-//            poss_m_p.insert({(*it2).second.first, {w, (*it2).second.second} });
-//
-//            poss_poss_m_p.erase(it2);
-//            it2 = poss_poss_m_p.find(str);
-//        }
-//        existing_proofs.insert({str, w});
+
+        if (old_lines[w].root->token_type == IMPLICATION)
+        {
+            all_consequences[old_lines[w].to_string()] = w;
+
+            std::string left_child = predicate_ast(old_lines[w].root->left).to_string();
+
+            it = existing_proofs.find(left_child);
+            if (it != existing_proofs.end())
+            {
+                poss_m_p[predicate_ast(old_lines[w].root->right).to_string()] = {(*it).second, w};
+            } else
+            {
+                poss_poss_m_p.insert({left_child, {predicate_ast(old_lines[w].root->right).to_string(), w}});
+            }
+        }
+
+        it2 = poss_poss_m_p.find(cur_str);
+        while (it2 != poss_poss_m_p.end()) {
+            poss_m_p.insert({(*it2).second.first, {w, (*it2).second.second} });
+
+            poss_poss_m_p.erase(it2);
+            it2 = poss_poss_m_p.find(cur_str);
+        }
+        existing_proofs.insert({cur_str, w});
         ;
     }
 
-    //tmp
+    //output, todo another function
     std::freopen("tests/output.txt", "w", stdout);
     for (size_t i = 0; i < new_lines.size(); i++)
     {
         std::cout << new_lines[i].to_string() << std::endl;
     }
-
-    std::cout << "finished\n";
 }
