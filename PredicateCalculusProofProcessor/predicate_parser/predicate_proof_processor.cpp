@@ -57,6 +57,24 @@ void predicate_proof_processor::process_title(std::string const& title)
     this->old_to_prove = parser(to_prove_str).parse();
 }
 
+struct m_expr
+{
+    m_expr *left;
+    m_expr *right;
+
+    std::string str;
+    token_types tt;
+};
+
+m_expr *ptr_from_shared(std::shared_ptr<predicate_ast::node> sh_ptr)
+{
+    m_expr *ptr = new m_expr();
+    ptr->left = sh_ptr->left == NULL ? 0 : ptr_from_shared(sh_ptr->left);
+    ptr->right = sh_ptr->right == NULL ? 0 : ptr_from_shared(sh_ptr->right);
+    ptr->tt = sh_ptr->token_type;
+    ptr->str = sh_ptr->str;
+    return ptr;
+}
 void predicate_proof_processor::get_last_hypo()
 {
     //if initially there were more than 0 hypos
@@ -71,10 +89,11 @@ void predicate_proof_processor::get_last_hypo()
                 std::make_shared<predicate_ast::node>(last_hypo->root, old_to_prove->root, token_types::IMPLICATION));
     } else
     {
+        no_deduction = true;
         //last hypo remains uninitialized
-        for(size_t i = 0; i < old_lines.size(); i++)
+        for (size_t i = 0; i < old_lines.size(); i++)
         {
-            new_lines[i] = old_lines[i].to_string();
+            new_lines.push_back(old_lines[i].to_string());
         }
         new_to_prove = old_to_prove;
     }
@@ -83,6 +102,11 @@ void predicate_proof_processor::get_last_hypo()
 //concats new lines vector with vectors of strings
 void predicate_proof_processor::concat_vectors(std::vector<std::string> const& strs)
 {
+    //do nothing if nothing can be done
+    if (no_deduction)
+    {
+        return;
+    }
     for (size_t i = 0; i < strs.size(); i++)
     {
         new_lines.push_back(strs[i]);
@@ -258,6 +282,7 @@ void predicate_proof_processor::process()
         }
 
         pos = w;
+        bool wrote = false;
 
         //just convert line to string
         std::string cur_str = old_lines[w].to_string();
@@ -269,110 +294,132 @@ void predicate_proof_processor::process()
             std::string poss_error;
             axioms::axiom_check_result c = axioms::is_an_axiom(old_lines[w]);
 
-            if (c.finded_ax >= 0)
+            if (!wrote && c.finded_ax >= 0)
             {
-                if (last_hypo)
+                //add new lines to proof
+                if (!no_deduction)
                 {
-                    //add new lines to proof
                     concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
                 }
+                wrote = true;
             } else if (c.finded_ax < -1)
             {
                 poss_error = "терм " + predicate_ast(c.term).to_string() + " не свободен для подстановки в формулу ";
                 poss_error += predicate_ast(c.formula).to_string() + " вместо переменной ";
                 poss_error += c.var + ".";
-            } else
-            {
+            }
 
-                ///---------------------------------------------
+            if (!wrote)
+            {
                 it = old_hypotheses_map.find(cur_str);
                 if (it != old_hypotheses_map.end())
                 {
                     if ((*it).second == static_cast<int>(old_hypotheses.size()))
                     {
-                        concat_vectors(get_hypo_lines(last_hypo->to_string()));
+                        if (!no_deduction)
+                        {
+                            concat_vectors(get_hypo_lines(last_hypo->to_string()));
+                        }
                     } else
                     {
-                        concat_vectors(get_scheme_ax_lines(last_hypo->to_string(), old_lines[w].to_string()));
+                        if (!no_deduction)
+                        {
+                            concat_vectors(get_scheme_ax_lines(last_hypo->to_string(), old_lines[w].to_string()));
+                        }
                     }
-                } else
-                {
-                    ///---------------------------------------------
-                    std::map<std::string, std::pair<int, int> >::iterator it_m_p;
+                    wrote = true;
+                }
+            }
 
-                    it_m_p = poss_m_p.find(cur_str);
-                    if (it_m_p != poss_m_p.end())
+            if (!wrote)
+            {
+                std::map<std::string, std::pair<int, int> >::iterator it_m_p;
+                it_m_p = poss_m_p.find(cur_str);
+                if (it_m_p != poss_m_p.end())
+                {
+                    if (!no_deduction)
                     {
                         concat_vectors(get_mp_lines(last_hypo->to_string(),
                                                     old_lines[(*it_m_p).second.first].to_string(),
                                                     predicate_ast(
                                                             old_lines[(*it_m_p).second.second].root->right).to_string()));
-                    } else
-                    {
-                        ///---------------------------------------------
+                    }
+                    wrote = true;
+                }
+            }
 
-                        axioms::pred_rules_res res = axioms::check_if_it_new_pred_rule(old_lines[w].root,
-                                                                                       all_consequences);
-                        if (res.res > 0)
+            if (!wrote)
+            {
+                axioms::pred_rules_res res = axioms::check_if_it_new_pred_rule(old_lines[w].root,
+                                                                               all_consequences);
+                if (res.res > 0)
+                {
+                    if (this->free_vars_in_last_hypo.find(res.var) == free_vars_in_last_hypo.end())
+                    {
+                        if (res.res == 1)
                         {
-                            if (this->free_vars_in_last_hypo.find(res.var) == free_vars_in_last_hypo.end())
+                            if (!no_deduction)
                             {
-                                if (res.res == 1)
-                                {
-                                    std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left;
-                                    std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right->right;
-                                    std::string x = old_lines[w].root->right->left->str;
-                                    concat_vectors(
-                                            get_predicate_rule_lines(true, last_hypo->to_string(),
-                                                                     predicate_ast(B).to_string(),
-                                                                     predicate_ast(C).to_string(), x));
-                                } else
-                                {
-                                    std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left->right;
-                                    std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right;
-                                    std::string x = old_lines[w].root->left->left->str;
-                                    concat_vectors(
-                                            get_predicate_rule_lines(false, last_hypo->to_string(),
-                                                                     predicate_ast(B).to_string(),
-                                                                     predicate_ast(C).to_string(), x));
-                                }
-                            } else
-                            {
-                                if (poss_error.empty())
-                                {
-                                    poss_error = "используется правило с квантором по переменной ";
-                                    poss_error += res.var + ", входящей свободно в допущение ";
-                                    poss_error += last_hypo->to_string() + ".";
-                                }
+                                std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left;
+                                std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right->right;
+                                std::string x = old_lines[w].root->right->left->str;
+                                concat_vectors(
+                                        get_predicate_rule_lines(true, last_hypo->to_string(),
+                                                                 predicate_ast(B).to_string(),
+                                                                 predicate_ast(C).to_string(), x));
                             }
                         } else
                         {
-                            if ((res.res < 0) && (poss_error.empty()))
+                            if (!no_deduction)
                             {
-                                poss_error = std::string("переменная ") + res.var;
-                                poss_error += std::string(" входит свободно в формулу ");
-                                poss_error += predicate_ast(res.formula).to_string() + ".";
-                            }
-
-                            if (axioms::is_9_math_axiom(old_lines[w]))
-                            {
-                                concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
-                            } else
-                            {
-                                //else not proved statement, sophism must be prosecuted
-                                print_output(true, poss_error);
-                                return;
+                                std::shared_ptr<predicate_ast::node> B = old_lines[w].root->left->right;
+                                std::shared_ptr<predicate_ast::node> C = old_lines[w].root->right;
+                                std::string x = old_lines[w].root->left->left->str;
+                                concat_vectors(
+                                        get_predicate_rule_lines(false, last_hypo->to_string(),
+                                                                 predicate_ast(B).to_string(),
+                                                                 predicate_ast(C).to_string(), x));
                             }
                         }
+                        wrote = true;
+                    } else
+                    {
+                        if (poss_error.empty())
+                        {
+                            poss_error = "используется правило с квантором по переменной ";
+                            poss_error += res.var + ", входящей свободно в допущение ";
+                            poss_error += last_hypo->to_string() + ".";
+                        }
                     }
+                } else if ((res.res < 0) && (poss_error.empty()))
+                {
+                    poss_error = std::string("переменная ") + res.var;
+                    poss_error += std::string(" входит свободно в формулу ");
+                    poss_error += predicate_ast(res.formula).to_string() + ".";
                 }
+
+            }
+
+            if (!wrote && axioms::is_9_math_axiom(old_lines[w]))
+            {
+                if (!no_deduction)
+                {
+                    concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
+                }
+                wrote = true;
+            }
+
+            if (!wrote)
+            {
+                //else not proved statement, sophism must be prosecuted
+                print_output(true, poss_error);
+                return;
             }
         }
 
         if (old_lines[w].root->token_type == IMPLICATION)
         {
             all_consequences[old_lines[w].to_string()] = w;
-
             std::string left_child = predicate_ast(old_lines[w].root->left).to_string();
 
             it = existing_proofs.find(left_child);
@@ -389,11 +436,10 @@ void predicate_proof_processor::process()
         while (it2 != poss_poss_m_p.end())
         {
             poss_m_p.insert({(*it2).second.first, {w, (*it2).second.second}});
-
             poss_poss_m_p.erase(it2);
             it2 = poss_poss_m_p.find(cur_str);
         }
-        existing_proofs.insert({cur_str, w});;
+        existing_proofs.insert({cur_str, w});
     }
 
     print_output(false, "");

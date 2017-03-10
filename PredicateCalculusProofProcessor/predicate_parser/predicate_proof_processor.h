@@ -52,6 +52,7 @@ public:
     std::map<std::string, int> existing_proofs;
     std::multimap<std::string, std::pair<std::string, int> > poss_poss_m_p;
 
+    bool no_deduction = false;
     size_t pos;
 
     std::vector<std::string> get_scheme_ax_lines(std::string const& A, std::string const& B);
