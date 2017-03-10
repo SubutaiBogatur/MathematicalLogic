@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(PredicateCalculusProofProcesser)
 
 #-std=c++14 needed for std::experimental::optional
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O0 -Wall -Werror")
 
 set(SOURCE_FILES main.cpp predicate_parser/parser.cpp predicate_parser/predicate_ast.cpp
         predicate_parser/predicate_proof_processor.cpp

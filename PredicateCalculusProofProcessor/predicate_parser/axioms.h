@@ -71,7 +71,7 @@ public:
     //  else returns -num, it mathematical axiom
     static axiom_check_result is_an_axiom(predicate_ast ast);
     static pred_rules_res
-    check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, int> all_consequences);
+    check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, size_t> all_consequences);
 
     static bool is_9_math_axiom(predicate_ast ast);
 

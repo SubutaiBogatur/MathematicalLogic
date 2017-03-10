@@ -47,7 +47,7 @@ public:
     std::set<std::string> free_vars_in_last_hypo;
 
 
-    std::map<std::string, int> all_consequences;
+    std::map<std::string, size_t> all_consequences;
 
     std::map<std::string, int> existing_proofs;
     std::multimap<std::string, std::pair<std::string, int> > poss_poss_m_p;

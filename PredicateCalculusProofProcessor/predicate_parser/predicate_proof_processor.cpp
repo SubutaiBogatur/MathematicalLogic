@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include "predicate_proof_processor.h"
-#include "axioms.h"
 
 predicate_proof_processor::predicate_proof_processor(std::string const& input, std::string output)
 {
@@ -243,6 +243,16 @@ void predicate_proof_processor::process()
 
     for (size_t w = 0; w < old_lines.size(); w++)
     {
+        //just for nice stderr output, when waiting for a long time
+        if (w % 2000 == 0)
+        {
+            std::cerr << std::fixed << std::setprecision(2) << (double) w / (double) old_lines.size() * 100
+                      << "% of lines processed\n";
+        } else if (w == old_lines.size() - 1)
+        {
+            std::cerr << "100.0% of lines processed\n";
+        }
+
         pos = w;
 
         //just convert line to string
@@ -284,15 +294,15 @@ void predicate_proof_processor::process()
                 } else
                 {
                     ///---------------------------------------------
-                    std::map<std::string, std::pair<int, int> >::iterator it3;
+                    std::map<std::string, std::pair<int, int> >::iterator it_m_p;
 
-                    it3 = poss_m_p.find(cur_str);
-                    if (it3 != poss_m_p.end())
+                    it_m_p = poss_m_p.find(cur_str);
+                    if (it_m_p != poss_m_p.end())
                     {
                         concat_vectors(get_mp_lines(last_hypo->to_string(),
-                                                    old_lines[(*it3).second.first].to_string(),
+                                                    old_lines[(*it_m_p).second.first].to_string(),
                                                     predicate_ast(
-                                                            old_lines[(*it3).second.second].root->right).to_string()));
+                                                            old_lines[(*it_m_p).second.second].root->right).to_string()));
                     } else
                     {
                         ///---------------------------------------------
@@ -340,15 +350,12 @@ void predicate_proof_processor::process()
                                 poss_error += predicate_ast(res.formula).to_string() + ".";
                             }
 
-//            ///---------------------------------------------
-
                             if (axioms::is_9_math_axiom(old_lines[w]))
                             {
-                                std::cerr << "is induction axiom\n";
                                 concat_vectors(get_scheme_ax_lines((*last_hypo).to_string(), old_lines[w].to_string()));
                             } else
                             {
-                                //else not proved statement, sophism must be punished
+                                //else not proved statement, sophism must be prosecuted
                                 print_output(true, poss_error);
                                 return;
                             }
@@ -391,17 +398,16 @@ void predicate_proof_processor::process()
 
 void predicate_proof_processor::print_output(bool error_happened, std::string error)
 {
-    std::freopen("tests/output.txt", "w", stdout);
-    std::ios::sync_with_stdio(false);
+    std::ofstream ofs(output_filename);
 
     if (error_happened)
     {
-        std::cout << "Вывод некорректен начиная с формулы номер ";
-        std::cout << pos + 1;
+        ofs << "Вывод некорректен начиная с формулы номер ";
+        ofs << pos + 1;
 
         if (!error.empty())
         {
-            std::cout << ": " << error;
+            ofs << ": " + error;
         }
         return;
     } else
@@ -412,16 +418,16 @@ void predicate_proof_processor::print_output(bool error_happened, std::string er
         {
             if (b)
             {
-                std::cout << ",";
+                ofs << ",";
             }
             b = 1;
-            std::cout << new_hypotheses[i].to_string();
+            ofs << new_hypotheses[i].to_string();
         }
-        std::cout << "|-" << new_to_prove->to_string() << "\n";
+        ofs << "|-" + new_to_prove->to_string() + "\n";
         //print lines
         for (size_t i = 0; i < new_lines.size(); i++)
         {
-            std::cout << new_lines[i].to_string() << std::endl;
+            ofs << new_lines[i].to_string() << std::endl;
         }
     }
 }

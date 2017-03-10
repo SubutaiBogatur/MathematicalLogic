@@ -98,7 +98,7 @@ void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::st
                                   uint8_t prev_prec, size_t pos) const
 {
     bool brackets = 0;
-    int associativity = 0;
+    uint8_t associativity = 0;
 
     if ((cur_node->token_type == DISJUNCTION) || (cur_node->token_type == CONJUNCTION))
     {
@@ -107,7 +107,7 @@ void predicate_ast::rec_to_string(std::shared_ptr<node> const& cur_node, std::st
 
 //    std::cout << precedence.find(cur_node->token_type)->second << std::endl;
     if ((precedence.find(cur_node->token_type)->second > prev_prec) ||
-        ((precedence.find(cur_node->token_type)->second == prev_prec) && (pos == associativity)))
+        ((precedence.find(cur_node->token_type)->second == prev_prec) && (pos == (associativity))))
     {
         brackets = 1;
     }

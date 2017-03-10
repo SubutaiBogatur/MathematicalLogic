@@ -343,7 +343,7 @@ axioms::axiom_check_result axioms::is_an_axiom(predicate_ast ast)
 }
 
 axioms::pred_rules_res
-axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, int> all_consequences)
+axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, size_t> all_consequences)
 {
     if (c->token_type != IMPLICATION)
     {

@@ -73,8 +73,8 @@
 
 int main()
 {
-    predicate_proof_processor p("tests/samples/correct11.in", "tests/output.out");
-//    predicate_proof_processor p("tests/input.in", "tests/output.out");
+//    predicate_proof_processor p("tests/samples/correct11.in", "tests/output.out");
+    predicate_proof_processor p("tests/input.in", "tests/output.out");
     p.process();
 
     return 0;
