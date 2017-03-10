@@ -69,32 +69,32 @@ public:
     //returns 0 if not an axiom,
     //  else returns num, if logical axiom
     //  else returns -num, it mathematical axiom
-    static axiom_check_result is_an_axiom(predicate_ast ast);
-    static pred_rules_res
-    check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, size_t> all_consequences);
+    static axiom_check_result is_an_axiom(predicate_ast& ast);
+    static pred_rules_res check_if_it_new_pred_rule(
+            std::shared_ptr<predicate_ast::node> const& c, std::map<std::string, size_t> const& all_consequences);
 
-    static bool is_9_math_axiom(predicate_ast ast);
+    static bool is_9_math_axiom(predicate_ast& ast);
 
 private:
     //is used to compare expr with logical axioms
-    static bool recursive_axiom_compare(std::shared_ptr<predicate_ast::node>& expr_nod,
-                                        std::shared_ptr<predicate_ast::node>& ax_nod,
+    static bool recursive_axiom_compare(std::shared_ptr<predicate_ast::node> const& expr_nod,
+                                        std::shared_ptr<predicate_ast::node> const& ax_nod,
                                         std::map<char, std::string>& ax_leaves);
-    static axiom_check_result is_11_axiom(predicate_ast ast);
-    static axiom_check_result is_12_axiom(predicate_ast ast);
+    static axiom_check_result is_11_axiom(predicate_ast& ast);
+    static axiom_check_result is_12_axiom(predicate_ast& ast);
 
-    static axiom_check_result is_result_of_substitution(std::string& var,
+    static axiom_check_result is_result_of_substitution(std::string const& var,
                                                         std::shared_ptr<predicate_ast::node>& expr1,
                                                         std::shared_ptr<predicate_ast::node>& expr2);
-    static bool is_result_of_sub_rec(std::string& var,
-                                     std::shared_ptr<predicate_ast::node>& expr1,
-                                     std::shared_ptr<predicate_ast::node>& expr2,
+    static bool is_result_of_sub_rec(std::string const& var,
+                                     std::shared_ptr<predicate_ast::node> const& expr1,
+                                     std::shared_ptr<predicate_ast::node> const& expr2,
                                      std::set<std::string>& locked_vars,
                                      std::multiset<std::string>& can_be_locked,
                                      std::shared_ptr<predicate_ast::node>& new_finded_expr);
-    static bool check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::node>& expr,
-                                                  std::set<std::string>& locked_vars);
-    static bool check_is_var_free_in_expr(std::string& var, std::shared_ptr<predicate_ast::node> c);
+    static bool check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::node> const& expr,
+                                                  std::set<std::string> const& locked_vars);
+    static bool check_is_var_free_in_expr(std::string const& var, std::shared_ptr<predicate_ast::node> const& c);
 };
 
 

@@ -7,7 +7,7 @@
 #include <iomanip>
 #include "predicate_proof_processor.h"
 
-predicate_proof_processor::predicate_proof_processor(std::string const& input, std::string output)
+predicate_proof_processor::predicate_proof_processor(std::string const& input, std::string const& output)
 {
     output_filename = output;
 
@@ -30,7 +30,7 @@ predicate_proof_processor::predicate_proof_processor(std::string const& input, s
 }
 
 //fills old_hypotheses and old_to_prove
-void predicate_proof_processor::process_title(std::string title)
+void predicate_proof_processor::process_title(std::string const& title)
 {
     size_t i = 0;
 
@@ -72,7 +72,10 @@ void predicate_proof_processor::get_last_hypo()
     } else
     {
         //last hypo remains uninitialized
-        new_lines = old_lines;
+        for(size_t i = 0; i < old_lines.size(); i++)
+        {
+            new_lines[i] = old_lines[i].to_string();
+        }
         new_to_prove = old_to_prove;
     }
 }
@@ -82,13 +85,13 @@ void predicate_proof_processor::concat_vectors(std::vector<std::string> const& s
 {
     for (size_t i = 0; i < strs.size(); i++)
     {
-        new_lines.push_back(parser(strs[i]).parse());
+        new_lines.push_back(strs[i]);
     }
 }
 
 //proves A->B, where A is selected hypo and B is axiom or hypo
 //A is selected hypothesis, B is expr which is axiom
-std::vector<std::string> predicate_proof_processor::get_scheme_ax_lines(std::string A, std::string B)
+std::vector<std::string> predicate_proof_processor::get_scheme_ax_lines(std::string const& A, std::string const& B)
 {
     std::ifstream ifs("predicate_parser/proof_parts/axiom_or_hypo.txt");
     std::vector<std::string> ret;
@@ -117,7 +120,7 @@ std::vector<std::string> predicate_proof_processor::get_scheme_ax_lines(std::str
 }
 
 //proves A->A, where A is hypo in deduction theorem
-std::vector<std::string> predicate_proof_processor::get_hypo_lines(std::string A)
+std::vector<std::string> predicate_proof_processor::get_hypo_lines(std::string const& A)
 {
     std::ifstream ifs("predicate_parser/proof_parts/last_hypo.txt");
     std::vector<std::string> ret;
@@ -143,7 +146,8 @@ std::vector<std::string> predicate_proof_processor::get_hypo_lines(std::string A
 }
 
 //proves A->C, where we already know, that A->B and A->B->C
-std::vector<std::string> predicate_proof_processor::get_mp_lines(std::string A, std::string B, std::string C)
+std::vector<std::string>
+predicate_proof_processor::get_mp_lines(std::string const& A, std::string const& B, std::string const& C)
 {
     std::ifstream ifs("predicate_parser/proof_parts/mp.txt");
     std::vector<std::string> ret;
@@ -174,9 +178,9 @@ std::vector<std::string> predicate_proof_processor::get_mp_lines(std::string A, 
     return ret;
 }
 
-std::vector<std::string>
-predicate_proof_processor::get_predicate_rule_lines(bool first_rule_needed, std::string A, std::string B, std::string C,
-                                                    std::string x)
+std::vector<std::string> predicate_proof_processor::get_predicate_rule_lines(bool first_rule_needed,
+                                                                             std::string const& A, std::string const& B,
+                                                                             std::string const& C, std::string const& x)
 {
     std::ifstream ifs;
     if (first_rule_needed)
@@ -229,7 +233,7 @@ void predicate_proof_processor::process()
     //move hypotheses to new proof
     for (int w = 0; w < (int) old_hypotheses.size() - 1; w++)
     {
-        new_hypotheses.push_back(old_hypotheses[w]);
+        new_hypotheses.push_back(old_hypotheses[w].to_string());
     }
 
     //fills last hypo and lines if no last hypo, also fills to_prove
@@ -421,13 +425,13 @@ void predicate_proof_processor::print_output(bool error_happened, std::string er
                 ofs << ",";
             }
             b = 1;
-            ofs << new_hypotheses[i].to_string();
+            ofs << new_hypotheses[i];
         }
         ofs << "|-" + new_to_prove->to_string() + "\n";
         //print lines
         for (size_t i = 0; i < new_lines.size(); i++)
         {
-            ofs << new_lines[i].to_string() << std::endl;
+            ofs << new_lines[i] << std::endl;
         }
     }
 }

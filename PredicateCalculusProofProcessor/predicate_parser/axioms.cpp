@@ -34,7 +34,7 @@ const std::vector<std::string> axioms_mat_str = {
 std::vector<predicate_ast> axioms::axioms_log;
 std::vector<predicate_ast> axioms::axioms_mat;
 
-bool axioms::check_is_var_free_in_expr(std::string& var, std::shared_ptr<predicate_ast::node> c)
+bool axioms::check_is_var_free_in_expr(std::string const& var, std::shared_ptr<predicate_ast::node> const& c)
 {
     if (!c)
     {
@@ -79,8 +79,8 @@ void axioms::assemble_axioms_if_needed()
 }
 
 //tested, seems ok
-bool axioms::recursive_axiom_compare(std::shared_ptr<predicate_ast::node>& expr_nod,
-                                     std::shared_ptr<predicate_ast::node>& ax_nod,
+bool axioms::recursive_axiom_compare(std::shared_ptr<predicate_ast::node> const& expr_nod,
+                                     std::shared_ptr<predicate_ast::node> const& ax_nod,
                                      std::map<char, std::string>& ax_leaves)
 {
     if (expr_nod == NULL)
@@ -139,9 +139,9 @@ bool axioms::recursive_axiom_compare(std::shared_ptr<predicate_ast::node>& expr_
     return true;
 }
 
-axioms::axiom_check_result
-axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
-                                  std::shared_ptr<predicate_ast::node>& expr2)
+axioms::axiom_check_result axioms::is_result_of_substitution(std::string const& var,
+                                                             std::shared_ptr<predicate_ast::node>& expr1,
+                                                             std::shared_ptr<predicate_ast::node>& expr2)
 {
     std::multiset<std::string> can_be_locked;
     std::set<std::string> locked_vars;
@@ -159,8 +159,8 @@ axioms::is_result_of_substitution(std::string& var, std::shared_ptr<predicate_as
     return axiom_check_result(-1, new_finded_expr, expr1, var);
 }
 
-bool axioms::check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::node>& expr,
-                                               std::set<std::string>& locked_vars)
+bool axioms::check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::node> const& expr,
+                                               std::set<std::string> const& locked_vars)
 {
     if (expr == NULL)
     {
@@ -182,8 +182,8 @@ bool axioms::check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::no
     return 1;
 }
 
-bool axioms::is_result_of_sub_rec(std::string& var, std::shared_ptr<predicate_ast::node>& expr1,
-                                  std::shared_ptr<predicate_ast::node>& expr2,
+bool axioms::is_result_of_sub_rec(std::string const& var, std::shared_ptr<predicate_ast::node> const& expr1,
+                                  std::shared_ptr<predicate_ast::node> const& expr2,
                                   std::set<std::string>& locked_vars,
                                   std::multiset<std::string>& can_be_locked,
                                   std::shared_ptr<predicate_ast::node>& new_finded_expr)
@@ -258,7 +258,7 @@ bool axioms::is_result_of_sub_rec(std::string& var, std::shared_ptr<predicate_as
 }
 
 
-axioms::axiom_check_result axioms::is_11_axiom(predicate_ast ast)
+axioms::axiom_check_result axioms::is_11_axiom(predicate_ast& ast)
 {
     std::shared_ptr<predicate_ast::node>& c = ast.root;
     if ((!c) || (c->token_type != IMPLICATION) || (c->left->token_type != FOR_ALL))
@@ -275,7 +275,7 @@ axioms::axiom_check_result axioms::is_11_axiom(predicate_ast ast)
     return res;
 }
 
-axioms::axiom_check_result axioms::is_12_axiom(predicate_ast ast)
+axioms::axiom_check_result axioms::is_12_axiom(predicate_ast& ast)
 {
     std::shared_ptr<predicate_ast::node> c = ast.root;
     if ((!c) || (c->token_type != IMPLICATION) || (c->right->token_type != EXISTS))
@@ -291,7 +291,7 @@ axioms::axiom_check_result axioms::is_12_axiom(predicate_ast ast)
     return res;
 }
 
-axioms::axiom_check_result axioms::is_an_axiom(predicate_ast ast)
+axioms::axiom_check_result axioms::is_an_axiom(predicate_ast& ast)
 {
     assert (axioms_mat.size() == 8);
     //firstly check if mathematical axiom:
@@ -342,8 +342,8 @@ axioms::axiom_check_result axioms::is_an_axiom(predicate_ast ast)
     return ret_res;
 }
 
-axioms::pred_rules_res
-axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::map<std::string, size_t> all_consequences)
+axioms::pred_rules_res axioms::check_if_it_new_pred_rule(
+        std::shared_ptr<predicate_ast::node> const& c, std::map<std::string, size_t> const& all_consequences)
 {
     if (c->token_type != IMPLICATION)
     {
@@ -400,9 +400,10 @@ axioms::check_if_it_new_pred_rule(std::shared_ptr<predicate_ast::node> c, std::m
     return ret_res;
 }
 
+//todo mb move to header
 //substitutes variable
-std::shared_ptr<predicate_ast::node>
-substitute(std::shared_ptr<predicate_ast::node> c, std::string old_val, std::string new_val)
+std::shared_ptr<predicate_ast::node> substitute(
+        std::shared_ptr<predicate_ast::node> c, std::string const& old_val, std::string const& new_val)
 {
 
     if (c == 0)
@@ -435,7 +436,7 @@ substitute(std::shared_ptr<predicate_ast::node> c, std::string old_val, std::str
     return ret;
 }
 
-bool axioms::is_9_math_axiom(predicate_ast ast)
+bool axioms::is_9_math_axiom(predicate_ast& ast)
 {
     if (ast.root->token_type == IMPLICATION)
     {
