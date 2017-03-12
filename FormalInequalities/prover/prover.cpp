@@ -3,7 +3,6 @@
 //
 
 #include <fstream>
-#include "prover.h"
 
 std::string replace_all(std::string subject, const std::string& search, const std::string& replace)
 {
@@ -40,7 +39,7 @@ void prove_less(int a, int b, std::string output)
     std::string s = "";
     ofs << "|-?p(" + A + "+p)=" + B << std::endl;
 
-    std::ifstream ifs_base("prover/parts_of_proof/less_base.txt");
+    std::ifstream ifs_base("../prover/parts_of_proof/less_base.txt");
     while (ifs_base.good())
     {
         std::string str;
@@ -52,7 +51,7 @@ void prove_less(int a, int b, std::string output)
     ofs << A + "+0=" + A << std::endl;
 
     std::string prooff = "";
-    std::ifstream ifs_proof("prover/parts_of_proof/less_proof.txt");
+    std::ifstream ifs_proof("../prover/parts_of_proof/less_proof.txt");
 
     while (ifs_proof.good())
     {
@@ -90,7 +89,7 @@ void prove_greater(int a, int b, std::string output)
         ofs << "|-!?p(" + a_str + "+p)=" + b_str << std::endl;
     }
 
-    std::ifstream ifs_simple("prover/parts_of_proof/greater_base.txt");
+    std::ifstream ifs_simple("../prover/parts_of_proof/greater_base.txt");
     while (ifs_simple.good())
     {
         std::string str;
@@ -117,7 +116,7 @@ void prove_greater(int a, int b, std::string output)
         }
     }
 
-    std::ifstream ifs_second("prover/parts_of_proof/greater_proof.txt");
+    std::ifstream ifs_second("../prover/parts_of_proof/greater_proof.txt");
 
     while (ifs_second.good())
     {

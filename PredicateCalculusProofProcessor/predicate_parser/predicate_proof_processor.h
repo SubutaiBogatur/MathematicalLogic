@@ -25,8 +25,7 @@ public:
     //main function, that does all the work
     void process();
 
-    //todo private after debugging
-public:
+private:
     std::string output_filename;
     std::vector<predicate_ast> old_hypotheses;
     std::vector<predicate_ast> old_lines;

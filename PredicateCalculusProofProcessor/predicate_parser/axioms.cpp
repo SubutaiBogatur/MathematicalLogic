@@ -400,9 +400,8 @@ axioms::pred_rules_res axioms::check_if_it_new_pred_rule(
     return ret_res;
 }
 
-//todo mb move to header
 //substitutes variable
-std::shared_ptr<predicate_ast::node> substitute(
+std::shared_ptr<predicate_ast::node> axioms::substitute(
         std::shared_ptr<predicate_ast::node> c, std::string const& old_val, std::string const& new_val)
 {
 

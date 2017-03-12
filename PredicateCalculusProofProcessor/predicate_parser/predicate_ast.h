@@ -21,7 +21,6 @@ enum token_types
 
     PREDICATE, //eg P(a, b, c) or P
     VARIABLE, //eg x
-//    FUNCTION,  //eg f(a, b) //nb we will treat functions and vars the same. All the funcs are vars from now.
 
     ZERO,
     STROKE, //eg 0'
@@ -92,6 +91,7 @@ struct predicate_ast
 {
     friend struct parser;
     friend struct axioms;
+    friend struct predicate_proof_processor;
 public:
     predicate_ast() = delete;
 
@@ -101,7 +101,7 @@ public:
     bool equals(predicate_ast const& other) const;
 
     //todo private
-public:
+private:
     struct node
     {
         typedef std::shared_ptr<node> node_ptr;

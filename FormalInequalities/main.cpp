@@ -3,7 +3,7 @@
 
 int main()
 {
-    std::freopen("tests/input.txt", "r", stdin);
+    std::freopen("../tests/input.txt", "r", stdin);
     int a, b;
     std::cin >> a >> b;
     int c = b - a;

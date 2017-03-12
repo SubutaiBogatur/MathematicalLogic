@@ -95,6 +95,8 @@ private:
     static bool check_is_it_free_for_substitution(std::shared_ptr<predicate_ast::node> const& expr,
                                                   std::set<std::string> const& locked_vars);
     static bool check_is_var_free_in_expr(std::string const& var, std::shared_ptr<predicate_ast::node> const& c);
+    static std::shared_ptr<predicate_ast::node> substitute(
+            std::shared_ptr<predicate_ast::node> c, std::string const& old_val, std::string const& new_val);
 };
 
 

@@ -57,24 +57,6 @@ void predicate_proof_processor::process_title(std::string const& title)
     this->old_to_prove = parser(to_prove_str).parse();
 }
 
-struct m_expr
-{
-    m_expr *left;
-    m_expr *right;
-
-    std::string str;
-    token_types tt;
-};
-
-m_expr *ptr_from_shared(std::shared_ptr<predicate_ast::node> sh_ptr)
-{
-    m_expr *ptr = new m_expr();
-    ptr->left = sh_ptr->left == NULL ? 0 : ptr_from_shared(sh_ptr->left);
-    ptr->right = sh_ptr->right == NULL ? 0 : ptr_from_shared(sh_ptr->right);
-    ptr->tt = sh_ptr->token_type;
-    ptr->str = sh_ptr->str;
-    return ptr;
-}
 void predicate_proof_processor::get_last_hypo()
 {
     //if initially there were more than 0 hypos
@@ -117,7 +99,7 @@ void predicate_proof_processor::concat_vectors(std::vector<std::string> const& s
 //A is selected hypothesis, B is expr which is axiom
 std::vector<std::string> predicate_proof_processor::get_scheme_ax_lines(std::string const& A, std::string const& B)
 {
-    std::ifstream ifs("predicate_parser/proof_parts/axiom_or_hypo.txt");
+    std::ifstream ifs("../predicate_parser/proof_parts/axiom_or_hypo.txt");
     std::vector<std::string> ret;
 
     std::string cur_line;
@@ -146,7 +128,7 @@ std::vector<std::string> predicate_proof_processor::get_scheme_ax_lines(std::str
 //proves A->A, where A is hypo in deduction theorem
 std::vector<std::string> predicate_proof_processor::get_hypo_lines(std::string const& A)
 {
-    std::ifstream ifs("predicate_parser/proof_parts/last_hypo.txt");
+    std::ifstream ifs("../predicate_parser/proof_parts/last_hypo.txt");
     std::vector<std::string> ret;
 
     std::string cur_line;
@@ -173,7 +155,7 @@ std::vector<std::string> predicate_proof_processor::get_hypo_lines(std::string c
 std::vector<std::string>
 predicate_proof_processor::get_mp_lines(std::string const& A, std::string const& B, std::string const& C)
 {
-    std::ifstream ifs("predicate_parser/proof_parts/mp.txt");
+    std::ifstream ifs("../predicate_parser/proof_parts/mp.txt");
     std::vector<std::string> ret;
 
     std::string cur_line;
@@ -209,10 +191,10 @@ std::vector<std::string> predicate_proof_processor::get_predicate_rule_lines(boo
     std::ifstream ifs;
     if (first_rule_needed)
     {
-        ifs = std::ifstream("predicate_parser/proof_parts/first_predicate_rule.txt");
+        ifs = std::ifstream("../predicate_parser/proof_parts/first_predicate_rule.txt");
     } else
     {
-        ifs = std::ifstream("predicate_parser/proof_parts/second_predicate_rule.txt");
+        ifs = std::ifstream("../predicate_parser/proof_parts/second_predicate_rule.txt");
     }
 
 
